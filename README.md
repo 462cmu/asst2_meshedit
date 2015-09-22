@@ -1,3 +1,3 @@
-# asst2_geometry_processing
+# asst2_meshedit
 
 Coming soon.
