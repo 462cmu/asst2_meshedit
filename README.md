@@ -1,3 +1,3 @@
-# asst2_geometry_proccessing
+# asst2_geometry_processing
 
 Coming soon.
