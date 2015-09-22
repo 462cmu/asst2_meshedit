@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Asst2 geometry proccessing by 462cmu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Asst2 geometry proccessing</h1>
+      <h2 class="project-tagline"></h2>
+      <a href="https://github.com/462cmu/asst2_geometry_proccessing" class="btn">View on GitHub</a>
+      <a href="https://github.com/462cmu/asst2_geometry_proccessing/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/462cmu/asst2_geometry_proccessing/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst1_images/teaser.png" alt="Sample positions in screen space"></p>
+
+<h3>
+<a id="due-date" class="anchor" href="#due-date" aria-hidden="true"><span class="octicon octicon-link"></span></a>Due Date</h3>
+
+<p>Mon Sept 21st, 11:59pm</p>
+
+<h3>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h3>
+
+<p>In this project, you will implement a simple software rasterizer that draws points, lines, triangles, and bitmap images. When you are done, you will have a viewer that supports the basic features of the Scalable Vector Graphics (SVG) format that is now widely used on the internet.</p>
+
+<h3>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting started</h3>
+
+<p>We will be distributing assignments with git. You can find the repository for this assignment at <a href="http://462cmu.github.io/asst1_drawsvg/">http://462cmu.github.io/asst1_drawsvg/</a>. If you are unfamiliar with git, here is what you need to do to get the starter code:</p>
+
+<pre><code>$ git clone https://github.com/462cmu/asst1_drawsvg.git
+</code></pre>
+
+<p>This will create a <i> </i> <em>asst1_drawsvg</em> folder with all the source files. </p>
+
+<h3>
+<a id="build-instructions" class="anchor" href="#build-instructions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build Instructions</h3>
+
+<p>In order to ease the process of running on different platforms, we will be using <a href="http://www.cmake.org" title="CMake Homepage">CMake</a> for our assignments. You will need a CMake installation of version 2.8+ to build the code for this assignment. The GHC 5xxx cluster machines have all the packages required to build the project. It should also be relatively easy to build the assignment and work locally on your OSX or Linux. Building on Windows is currently not supported. </p>
+
+<p>If you are working on OS X and do not have CMake installed, we recommend installing it through <a href="https://www.macports.org/">Macports</a>:</p>
+
+<pre><code>sudo port install cmake
+</code></pre>
+
+<p>Or <a href="http://brew.sh/">Homebrew</a>:</p>
+
+<pre><code>brew install cmake
+</code></pre>
+
+<p>To build your code for this assignment:</p>
+
+<ul>
+<li>Create a directory to build your code:</li>
+</ul>
+
+<pre><code>$ cd p1 &amp;&amp; mkdir build &amp;&amp; cd build
+</code></pre>
+
+<ul>
+<li>Run CMake to generate makefile:</li>
+</ul>
+
+<pre><code>$ cmake ../src
+</code></pre>
+
+<ul>
+<li>Build your code:</li>
+</ul>
+
+<pre><code>$ make
+</code></pre>
+
+<ul>
+<li>Install the executable to your project root directory:</li>
+</ul>
+
+<pre><code>$ make install
+</code></pre>
+
+<h3>
+<a id="using-the-mini-svg-viewer-app" class="anchor" href="#using-the-mini-svg-viewer-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using the Mini-SVG Viewer App</h3>
+
+<p>When you have successfully built your code, you will get an executable named <strong>drawsvg</strong>. The <strong>drawsvg</strong> executable takes exactly one argument from the command line. You may load a single SVG file by specifying its path. For example, to load the example file <i> </i><em>svg/basic/test1.svg</em> :</p>
+
+<pre><code>./drawsvg ../svg/basic/test1.svg
+</code></pre>
+
+<p>When you first run the application, you will see a picture of a flower made of a bunch of blue points. The starter code that you must modify is drawing these points.  Now press the <kbd>R</kbd> key to toggle display to the staff's reference solution to this assignment. You'll see that the reference differs from "your solution" in that it has a black rectangle around the flower.  (This is because you haven't implemented line drawing yet!)</p>
+
+<p>While looking at the reference solution, hold down your primary mouse button (left button) and drag the cursor to pan the view. You can also use scroll wheel to zoom the view. (You can always hit <kbd>SPACE</kbd> to reset the viewport to the default view conditions). You can also compare the output of your implementation with that of the reference implementation.  To toggle the diff view, press <kbd>D</kbd>. We have also provided you with a "pixel-inspector" view to examine pixel-level details of the currently displayed implementation more clearly. The pixel inspector is toggled with the <kbd>Z</kbd> key. </p>
+
+<p>For convenience, <code>drawsvg</code> can also accept a path to a directory that contains multiple SVG files. To load files from <i> </i><em>svg/basic</em>:</p>
+
+<pre><code>./drawsvg ../svg/basic
+</code></pre>
+
+<p>The application will load up to nine files from that path and each file will be loaded into a tab. You can switch to a specific tab using keys <kbd>1</kbd> through <kbd>9</kbd>. </p>
+
+<h3>
+<a id="summary-of-viewer-controls" class="anchor" href="#summary-of-viewer-controls" aria-hidden="true"><span class="octicon octicon-link"></span></a>Summary of Viewer Controls</h3>
+
+<p>A table of all the keyboard controls in the <strong>draw</strong> application is provided below. </p>
+
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th align="center">Key</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Go to tab</td>
+<td align="center">
+<kbd>1</kbd> ~ <kbd>9</kbd>
+</td>
+</tr>
+<tr>
+<td>Switch to hw renderer</td>
+<td align="center"><kbd>H</kbd></td>
+</tr>
+<tr>
+<td>Switch to sw renderer</td>
+<td align="center"><kbd>S</kbd></td>
+</tr>
+<tr>
+<td>Toggle sw renderer impl (student soln/ref soln)</td>
+<td align="center"><kbd>R</kbd></td>
+</tr>
+<tr>
+<td>Regenerate mipmaps for current tab (student soln)</td>
+<td align="center"><kbd>;</kbd></td>
+</tr>
+<tr>
+<td>Regenerate mipmaps for current tab (ref soln)</td>
+<td align="center"><kbd>'</kbd></td>
+</tr>
+<tr>
+<td>Increase samples per pixel</td>
+<td align="center"><kbd>=</kbd></td>
+</tr>
+<tr>
+<td>Decrease samples per pixel</td>
+<td align="center"><kbd>-</kbd></td>
+</tr>
+<tr>
+<td>Toggle text overlay</td>
+<td align="center"><kbd>`</kbd></td>
+</tr>
+<tr>
+<td>Toggle pixel inspector view</td>
+<td align="center"><kbd>Z</kbd></td>
+</tr>
+<tr>
+<td>Toggle image diff view</td>
+<td align="center"><kbd>D</kbd></td>
+</tr>
+<tr>
+<td>Reset viewport to default position</td>
+<td align="center"><kbd>SPACE</kbd></td>
+</tr>
+</tbody>
+</table>
+
+<h3>
+<a id="what-you-need-to-do" class="anchor" href="#what-you-need-to-do" aria-hidden="true"><span class="octicon octicon-link"></span></a>What You Need to Do</h3>
+
+<p>The assignment is divided into eight major tasks, which are described below in the order the course staff suggests you attempt them. You are of course allowed to do the assignment in any order you choose. Although you have nearly 2.5 weeks to complete this assignment, the assignment <strong>involves significant implementation effort. Also, be advised that meeting the requirements of later tasks may involve restructuring code that you implemented in earlier ones.</strong>  In short: you are highly advised to aim to compete the first three tasks in the first week of the assignment.</p>
+
+<p><strong>NOTE: Tasks 4-6 depend on concepts that will be discussed in Lectures 3 and 4, so it is not expected that you understand those requirements at the time this assignment is released.</strong> </p>
+
+<h4>
+<a id="getting-acquainted-with-the-starter-code" class="anchor" href="#getting-acquainted-with-the-starter-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Acquainted with the Starter Code</h4>
+
+<p>Before you start, here are some basic information on the structure of the starter code.</p>
+
+<p>Most of your work will be constrained to implementing part of the class <code>SoftwareRendererImp</code> in <i> </i> <em>software_renderer.cpp</em>.  The most important method is <code>draw_svg</code> which (not surprisingly) accepts an SVG object to draw.  An SVG file defines its canvas (which defines a 2D coordinate space), and specifies a list of shape elements (such as points, lines, triangles, and images) that should be drawn on that canvas. Each shape element is has a number of style parameters (e.g.,  color) as well as a modeling transform used to determine the element's position on the canvas.  You can find the definition of the SVG class (and all the associated <code>SVGElements</code>) in <i> </i> <em>svg.h</em>.   Notice that one type of <code>SVGElement</code> is a group that itself contains child elements.  Therefore, you should think of an SVG file as defining a tree of shape elements.  (Interior nodes of the tree are groups, and leaves are shapes.)</p>
+
+<p>Another important method on the <code>SoftwareRendererImp</code> class is <code>set_render_target()</code>, which provides your code a buffer corresponding to the output image (it also provides width and height of the buffer in pixels, which are stored locally as <code>target_w</code> and <code>target_h</code>).  This buffer is often called the "render target" in many applications, since it is the "target" of rendering commands. <strong>We use the term pixel here on purpose because the values in this buffer are the values that will be displayed on screen.</strong>  Pixel values are stored in row-major format, and each pixel is an 8-bit RGBA value (32 bits in total).  Your implementation needs to fill in the contents of this buffer when it is asked to draw an SVG file.   </p>
+
+<p><code>set_render_target()</code> is called whenever the user resizes the application window.</p>
+
+<h4>
+<a id="a-simple-example-drawing-points" class="anchor" href="#a-simple-example-drawing-points" aria-hidden="true"><span class="octicon octicon-link"></span></a>A Simple Example: Drawing Points</h4>
+
+<p>You are given starter code that already implements drawing of 2D points.  To see how this works, begin by taking a look at <code>draw_svg()</code>  <i> </i><em>software_renderer.cpp</em>.  The method accepts an SVG file, and draws all elements in the SVG file via a sequence of calls to <code>draw_element()</code>.  For each element <code>draw_element()</code> inspects the type of the element, and then calls the appropriate draw function.  In the case of points, that function is <code>draw_point()</code>. </p>
+
+<p>The position of each point is defined in a local coordinate frame, so <code>draw_point()</code> first transforms the input point into its screen-space position (see line <code>p_screen = transform(p)</code>).  This transform is set at the beginning of <code>draw_svg()</code>.  In the starter code, this transform converts from the svg canvas' coordinate system to screen coordinates.  You will need to handle more complex transforms to support more complex SVG files and implement mouse viewing controls later in the assignment.</p>
+
+<p>The function <code>rasterize_point()</code> is responsible for actually drawing the point.  In this assignment we define screen space for an output image of size <code>(target_w, target_h)</code> as follows:</p>
+
+<ul>
+<li>
+<code>(0, 0)</code> corresponds to the top-left of the output image</li>
+<li>
+<code>(target_w, target_h)</code> corresponds to the bottom-right of the output image</li>
+<li><strong>Please assume that screen sample positions are located at half-integer coordinates in screen space. That is, the top-left sample point is at coordinate (0.5, 0.5), and the bottom-right sample point is at coordinate (target_w-0.5, target_h-0.5).</strong></li>
+</ul>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst1_images/coord_1spp.png" alt="Sample positions in screen space"></p>
+
+<p>To rasterize points, we adopt the following rule: a point covers at most one screen sample: the closest sample to the point in screen space.  This is implemented as follows, assuming (x, y) is the screen-space location of a point.  </p>
+
+<pre><code>int sx = (int) floor(x);
+int sy = (int) floor(y);
+</code></pre>
+
+<p>Of course, the code should not attempt to modify the render target buffer at invalid pixel locations.</p>
+
+<pre><code>if ( sx &lt; 0 || sx &gt; target_w ) return;
+if ( sy &lt; 0 || sy &gt; target_h ) return;
+</code></pre>
+
+<p>If the points happen to be on screen, we fill in the pixel with the RGBA color associated with the point.</p>
+
+<pre><code>  render_target[4 * (sx + sy * target_w)    ] = (uint8_t) (color.r * 255);
+  render_target[4 * (sx + sy * target_w) + 1] = (uint8_t) (color.g * 255);
+  render_target[4 * (sx + sy * target_w) + 2] = (uint8_t) (color.b * 255);
+  render_target[4 * (sx + sy * target_w) + 3] = (uint8_t) (color.a * 255);
+</code></pre>
+
+<p>At this time the starter code does not correctly handle transparent points.  We'll come back to this later.</p>
+
+<p><strong>Now that you understand the basics of drawing elements, let's get to work actually drawing more interesting elements than points!</strong></p>
+
+<h4>
+<a id="task-1--warm-up-drawing-lines" class="anchor" href="#task-1--warm-up-drawing-lines" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 1 : Warm Up: Drawing Lines</h4>
+
+<p>In this task you will add line drawing functionality by implementing the function <code>rasterize_line()</code> in <i> </i><em>software_renderer.cpp</em>. </p>
+
+<p>In Lecture 1, we discussed a few ways to think about rasterizing a line. (Recall we talked about possible rules for what samples are considered to be "covered" by the line, and we discussed algorithms for efficiently determining what samples meet that criteria.  Since line drawing is very well documented on the web (and this is just a warm up exercise), you may consult the web and use any algorithm you wish. However, your solution should:</p>
+
+<ul>
+<li>Handle non-integer vertex coordinates passed to <code>rasterize_line()</code>.</li>
+<li>Handle lines of any slope.</li>
+<li>Perform work proportional to the length of the line (methods that perform work for every pixel on screen or for all samples in the bounding box of the line are not acceptable solutions).</li>
+</ul>
+
+<p>We encourage you to start with an implementation of <a href="http://www.cs.helsinki.fi/group/goa/mallinnus/lines/bresenh.html">Bresenham's algorithm</a> and then, if you wish, continue on with implementations that improve quality (e.g., draw smooth lines) or optimize drawing performance.</p>
+
+<p>When you are done, your solution should be able to correctly render <i> </i><em>basic/test2.svg</em>.</p>
+
+<p><strong>Possible Extra Credit Extensions:</strong> </p>
+
+<ul>
+<li><p>If you compare your initial Bresenham results with the reference implementation, you will notice that the reference solution generates smooth lines.  For example, you could modify your Bresenham implementation to perform <a href="https://en.wikipedia.org/wiki/Xiaolin_Wu%27s_line_algorithm">Xiaolin Wu's line algorithm</a>. </p></li>
+<li><p>Add support for specifying a line width.</p></li>
+<li><p>Improve performance: make your line rasterizing algorithm very, very fast.</p></li>
+</ul>
+
+<h4>
+<a id="task-2-drawing-triangles" class="anchor" href="#task-2-drawing-triangles" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 2: Drawing Triangles</h4>
+
+<p>In this task, you will implement <code>rasterize_triangle()</code> in <i> </i><em>software_renderer.cpp</em>. </p>
+
+<p>Your implementation should:</p>
+
+<ul>
+<li><p>Sample triangle coverage using the methods discussed in Lecture 2. While in Task 1 you were given choice in how you defined the outputs of line drawing, there is an exact solution to the problem of sampling triangle coverage.  The position of screen sample points--at half-integer coordinates in screen space--was described above.</p></li>
+<li><p>To receive full credit in Task 2 your implementation should assume that a sample point on a triangle edge is covered by the triangle.   Your implementation <strong>DOES NOT</strong> need to respect the triangle "edge rules" to avoid "double counting" as discussed in class.  (but we encourage you to try!)</p></li>
+<li><p>Your implementation should use an algorithm that is more work efficient than simply testing all samples on screen.  To receive full credit it should at least constrain coverage tests to samples that lie within a screen-space bounding box of the triangle.  However, we encourage exploration of even more efficient implementations, such as ones that employ "early out" optimizations discussed in lecture.</p></li>
+<li><p>When a triangle covers a sample, you should write the triangle's color to the location corresponding to this sample in <code>render_target</code>.</p></li>
+</ul>
+
+<p>Once you have successfully implemented triangle drawing, you will able to draw a large number of examples.  When loading an SVG, the provided code triangulates convex polyhedra into a list of triangles for you, so by implementing support for rasterizing triangles, the viewer now supports drawing any of these shapes as well. (When parsing the SVG, we convert rectangles and polygons specified in the file into lists of triangles.)</p>
+
+<p>When you are done, you should be able to draw <i> </i><em>basic/test3.svg</em>, basic/test4.svg, and basic/test5.svg.</p>
+
+<p><strong>Possible extra credit extensions:</strong></p>
+
+<ul>
+<li>Improve performance: make your triangle rasterizer very, very fast.</li>
+</ul>
+
+<h4>
+<a id="task-3-anti-aliasing-using-supersampling" class="anchor" href="#task-3-anti-aliasing-using-supersampling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 3: Anti-Aliasing Using Supersampling</h4>
+
+<p><strong>This part of the assignment requires only knowledge of concepts from Lectures 1 and 2.</strong></p>
+
+<p>In this task, you will extend your rasterizer to anti-alias triangle edges via supersampling.  In response to the user changing the screen sampling rate (the <kbd>=</kbd> and <kbd>-</kbd> keys), the application will call <code>set_sample_rate()</code> .  The parameter <code>sample_rate</code> defines the sampling rate in each dimension, so a value of 2 would correspond to a sample density of 4 samples per pixel.  In this case, the samples lying within the top-left pixel of the screen would be located at locations (0.25, 0.25), (0.75, 0.25), (0.25, 0.75), and (0.75, 0.75).  </p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst1_images/coord_4spp.png" alt="Super-sampling: sample positions in screen space"></p>
+
+<p>It's reasonable to think of supersampled rendering as rendering an image that is <code>sample_rate</code> times larger than the actual output image in each dimension, then resampling the larger rendered output down to the screen sampling rate after rendering is complete.  To help you out, here is a sketch of an implementation.  <strong>Note: If you implemented your triangle rasterizer in terms of sampling coverage in screen-space coordinates (and not in terms of pixels), then the code changes to support supersampling should be fairly simple for triangles:</strong></p>
+
+<ul>
+<li><p>When rasterizing primitives such as triangles, rather than directly updating <code>render_target</code>, your rasterization should update the contents of a larger buffer (perhaps call it <code>supersample_target</code>) that holds the per-super-sample results.  Yes, you will have to allocate/free this buffer yourself.  Question: when is the right time to perform this allocation in the code?</p></li>
+<li><p>After rendering is complete, your implementation must resample the supersampled results buffer to obtain sample values for the render target.  This is often called "resolving" the supersample buffer into the render target.  Please implement resampling using a simple unit-area box filter.<br>
+Note that the function <code>SoftwareRendererImp::resolve()</code> is called by <code>draw_svg()</code> after the SVG file has been drawn.  Thus it's a very convenient place to perform resampling.</p></li>
+<li><p>You may need to take additional action in <code>SoftwareRendererImp::clear_target()</code> in supersampling mode.</p></li>
+</ul>
+
+<p>When you are done, try increasing the supersampling rate in the viewer, and bask in the glory of having much smoother triangle edges.</p>
+
+<p>Also observe that after enabling supersampled rendering, something might have gone very wrong with the rasterization of points and lines.  (Hint: they probably appear to get thinner!)  <strong>Please modify your implementation of rasterizing points and lines so that supersampled rendering of these primitives preserves their thickness across different supersampling rates.</strong> (A solution that does not anti-alias points and lines is acceptable.)</p>
+
+<p><strong>Possible Extra Credit Extensions:</strong></p>
+
+<ul>
+<li><p>Implement <a href="http://www.cs.cmu.edu/afs/cs/academic/class/15869-f11/www/readings/reshetov09_mlaa.pdf">Morphological anti-aliasing</a> (MLAA), rather than supersampling.  It's shocking how well this works.  MLAA is a technique used throughout the gaming community to avoid the high cost of supersampling but still avoid objectionable image artifacts caused by aliasing. (A more advanced version of MLAA is <a href="http://www.iryoku.com/mlaa/">here</a>).</p></li>
+<li><p>Implement <a href="http://graphics.pixar.com/library/MultiJitteredSampling/paper.pdf">jittered sampling</a> to improve image quality when supersampling. </p></li>
+<li><p>Implement higher quality resampling filters than a box and analyze their impact on image quality.</p></li>
+</ul>
+
+<h4>
+<a id="task-4-implementing-modeling-and-viewing-transforms" class="anchor" href="#task-4-implementing-modeling-and-viewing-transforms" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 4: Implementing Modeling and Viewing Transforms</h4>
+
+<h5>
+<a id="part-1-modeling-transforms" class="anchor" href="#part-1-modeling-transforms" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part 1: Modeling Transforms</h5>
+
+<p><strong>This part of the assignment assumes knowledge of concepts in Lecture 3.</strong></p>
+
+<p>In Lecture 3 we discussed how it is common (and often very useful) to describe objects and shapes in their own local coordinate spaces and then build up more complicated objects by positioning many individual components in a single coordinate space. In this task you will extend the renderer to properly interpret the hierarchy of modeling transforms expressed in SVG files.  </p>
+
+<p>Recall that an SVG object consists of a hierarchy of shape elements.  Each element in an SVG is associated with a modeling transform (see <code>SVGElement.transform</code> in <i> </i><em>svg.h</em>) that defines the relationship between the object's local coordinate space and the parent element's coordinate space.  At present, the implementation of <code>draw_element()</code> ignores these modeling transforms, so the only SVG objects your renderer has been able to correctly draw were objects that contained only identity modeling transforms. </p>
+
+<p>Please modify <code>draw_svg()</code> and <code>draw_element()</code> to implement the hierarchy of transforms specified in the SVG object.  (Yes, this is a simple task that should involve no more than a few lines of code.)</p>
+
+<p>When you are done, you should be able to draw <i> </i><em>basic/test6.svg</em>.</p>
+
+<h5>
+<a id="part-2-viewing-transform" class="anchor" href="#part-2-viewing-transform" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part 2: Viewing Transform</h5>
+
+<p>Notice the staff reference solution supports image pan and zoom behavior (drag the mouse to pan, use the scroll wheel to zoom).  To implement this functionality in your solution, you will need to implement <code>ViewportImp::set_viewbox()</code> in <code>viewport.cpp</code>.  </p>
+
+<p>A viewport defines a region of the SVG canvas that is visible in the app.  When the application initially launches, the entire canvas is in view.  For example, if the SVG canvas is of size 400x300, then the viewport will initially be centered on the center of the canvas, and have a vertical field of view that spans the entire canvas.  Specifically, the member values of the <code>Viewport</code> class will be: <code>x=200, y=150, span=150</code>. </p>
+
+<p>When user actions require the viewport be changed, the application will call <code>update_viewbox()</code>  with the appropriate parameters.  Given this change in view parameters, you should implement <code>set_viewbox()</code> to compute a transform <code>canvas_to_norm</code> based on the new view parameters.  This transform should map the SVG canvas coordinate space to a normalized space where the top left of the viewport region maps to (0,0) and the bottom right maps to (1, 1).  For example, for the values <code>x=200,y=150, span=10</code>, then SVG canvas coordinate (190, 140) transforms to normalized coordinate (0, 0) and canvas coordinate (210, 160) transforms to (1, 1).</p>
+
+<p>Once you have correctly implemented <code>set_viewbox()</code>, your solution will respond to mouse controls in the same way as the reference implementation.</p>
+
+<h4>
+<a id="task-5-drawing-scaled-images" class="anchor" href="#task-5-drawing-scaled-images" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 5: Drawing Scaled Images</h4>
+
+<p><strong>This part of the assignment requires knowledge of concepts in Lecture 4.</strong></p>
+
+<p>In this task, you will implement <code>rasterize_image()</code> in <i> </i><em>software_renderer.cpp</em>. </p>
+
+<p>To keep things very simple, we are going to constrain this problem to rasterizing image elements that are positioned on the SVG canvas via translations and scaling, <strong>but not rotations</strong>.  Therefore, <code>rasterize_image()</code> should render the specified image into an axis-aligned rectangle on screen whose top-level coordinate is <code>(x0, y0)</code> and whose bottom-right coordinate is <code>(x1, y1)</code>.  Your implementation should adhere to the following specification:</p>
+
+<ul>
+<li><p>The image element should cover all screen samples inside the specified rectangle.</p></li>
+<li><p>For each image, texture space spans a [0-1]^2 domain as described in class. That is, given the example above, the mapping from screen-space to texture-space is as follows: <code>(x0, y0)</code> in screen space maps to image texture coordinate <code>(0, 0)</code> and <code>(x1, y1)</code> maps to <code>(1, 1)</code>.</p></li>
+<li><p>You may wish to look at the implementation of input texture images in <code>texture.h/.cpp</code>.  The class <code>Sampler2D</code> provides skeleton of methods for nearest-neighbor (<code>sampler_nearest()</code>), bilinear (<code>sampler_bilinear()</code>), and trilinear filtering (<code>sample_trilinear()</code>).  In this task, for each covered sample, the color of the image at the specified sample location should be computed using <strong>bilinear filtering</strong> of the input texture.  Therefore you should implement <code>Sampler2D::sampler_bilinear()</code> in <code>texture.cpp</code> and call it from <code>rasterize_image()</code>.  (However, we recommend first implementing <code>Sampler2D::sampler_nearest()</code> -- as nearest neighbor filtering is simpler and will be given partial credit.)</p></li>
+<li><p>As discussed in class, please assume that image pixels correspond to samples at half-integer coordinates in texture space. </p></li>
+<li><p>The <code>Texture</code> struct stored in the <code>Sampler2D</code> class maintains multiple image buffers corresponding to a mipmap hierarchy.  In this task, you will sample from level 0 of the hierarchy: <code>Texture::mipmap[0]</code>.  </p></li>
+</ul>
+
+<p>When you are done, you should be able to draw <i> </i><em>basic/test7.svg</em>.</p>
+
+<h4>
+<a id="task-6-anti-aliasing-image-elements-using-trilinear-filtering" class="anchor" href="#task-6-anti-aliasing-image-elements-using-trilinear-filtering" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 6: Anti-Aliasing Image Elements Using Trilinear Filtering</h4>
+
+<p><strong>This part of the assignment requires knowledge of concepts in Lecture 4.</strong></p>
+
+<p>In this task you will improve your anti-aliasing of image elements by adding trilinear filtering.  This will involve generating mipmaps for image elements at SVG load time and then modifying your sampling code from Task 5 to implement trilinear filtering using the mipmap.  Your implementation is only required to work for images that have power-of-two dimensions in each direction.</p>
+
+<ul>
+<li><p>To generate mipmaps, you need to modify code in <code>Sampler2DImp::generate_mips()</code> in <i> </i><em>texture.cpp</em>.  Code for allocating all the appropriate buffers for each level of the mipmap hierarchy is given to you.  However, you will need to populate the contents of these buffers from the original texture data in level 0.  <strong>Your implementation can assume that all input texture images have power of two dimensions. (But it should not assume inputs images are square.)</strong></p></li>
+<li><p>Then modify your implementation of <code>rasterize_image()</code> from Task 5 to perform trilinear filtered sampling from the mipmap. Your implementation will first need to compute the appropriate level at which to sample from the mip-hierarchy.  Recall from class that as image elements shrink on screen, to avoid aliasing the rasterizer should sample from increasingly high (increasing prefiltered) levels of the hierarchy.</p></li>
+</ul>
+
+<p>At this point, zooming in and out of your image should produce nicely filtered results!</p>
+
+<h4>
+<a id="task-7-alpha-compositing" class="anchor" href="#task-7-alpha-compositing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 7: Alpha Compositing</h4>
+
+<p>Up until this point your renderer was not able to properly draw semi-transparent elements.  Therefore, your last programming task in this assignment is to modify your code to implement <a href="http://www.w3.org/TR/SVGTiny12/painting.html#CompositingSimpleAlpha">Simple Alpha Blending</a> in the SVG specification.  </p>
+
+<p>While the application will always clear the render target buffer to the canvas color at the beginning of a frame to opaque white ((255,255,255,255) in RGBA) before drawing any SVG element, your transparency implementation should make no assumptions about the state of the target at the beginning of a frame.</p>
+
+<p>When you are done, you should be able to correctly draw the tests in <i> </i><em>/alpha</em>.</p>
+
+<h4>
+<a id="task-8-draw-something" class="anchor" href="#task-8-draw-something" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 8: Draw Something!!!</h4>
+
+<p>Now that you have implemented a few basic features of the SVG format, it is time to get creative and draw something!  You can create an SVG file in popular design tools like Adobe Illustrator or Inkscape and export SVG files.  However, be aware that our starter code and your renderer implementation only support a subset of the features defined in the SVG specification, and these applications may not always encode shapes with the primitives we support. (You may need to convert complicated paths to the basic primitives in these tools.) Also, it is not very hard to write SVG files directly since they are just XML files.</p>
+
+<h4>
+<a id="going-further-tasks-that-may-potentially-win-you-extra-credit" class="anchor" href="#going-further-tasks-that-may-potentially-win-you-extra-credit" aria-hidden="true"><span class="octicon octicon-link"></span></a>Going Further: Tasks that May Potentially Win You Extra Credit:</h4>
+
+<h5>
+<a id="implement-more-advanced-shapes" class="anchor" href="#implement-more-advanced-shapes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implement More Advanced Shapes</h5>
+
+<p>We have provided you with a couple of examples of subdividing complex, smooth complex shapes into much simpler triangles in <i></i><em>/subdiv</em>.  Subdivision is something you will dig into in great detail in the next assignment. You can see subdivision in action as you step though the test files we provided. </p>
+
+<p>In addition to what you have implemented already, the <a href="http://www.w3.org/TR/SVG/shapes.html">SVG Basic Shapes</a> also include circles and ellipses. We may support these features by converting them to triangulated polygons. But if we zoom in on the edges, there will be a point at which the approximation breaks down and the image no longer will look like a smooth curve.  Triangulating more finely can be costly as a large number of triangles may be necessary to get a good approximation. Is there a better way to sample these shapes? For example, implement <code>drawEllipse</code> in <i> </i><em>drawsvg.cpp</em></p>
+
+<h5>
+<a id="improving-performance" class="anchor" href="#improving-performance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Improving Performance</h5>
+
+<p>Achieving high performance is critical in many graphics applications.  The staff is very interested in who can generate the fastest renderer in the class!  Using multi-core or SIMD parallelism is absolutely fair game. </p>
+
+<h3>
+<a id="grading" class="anchor" href="#grading" aria-hidden="true"><span class="octicon octicon-link"></span></a>Grading</h3>
+
+<p>Your code must run on the GHC 5xxxx cluster machines as we will grade on those machines. Do not wait until the submission deadline to test your code on the cluster machines. Keep in mind that there is no perfect way to run on arbitrary platforms. If you experience trouble building on your computer, while the staff may be able to help, but the GHC 5xxx machines will always work and we recommend you work on them.</p>
+
+<p>Each task will be graded on the basis of correctness.  You are not expected to completely reproduce the reference solution pixel-by-pixel as slight differences in implementation strategy or even the order of floating point arithmetic will causes differences, but your solution should not be very far off. (While we provide a diff view in the application to help you debug, we will mostly be using it as a reference when we grade your code.)    If you have any questions about whether your implementation is "sufficiently correct", just ask.</p>
+
+<p>The assignment consists of a total of 100 pts. The point breakdown is as follows:</p>
+
+<ul>
+<li>Task 1:  5</li>
+<li>Task 2:  20 </li>
+<li>Task 3:  20</li>
+<li>Task 4:  10</li>
+<li>Task 5:  15</li>
+<li>Task 6:  20</li>
+<li>Task 7: 5</li>
+<li>Task 8: 5</li>
+</ul>
+
+<h3>
+<a id="handin-instructions" class="anchor" href="#handin-instructions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Handin Instructions</h3>
+
+<p>Your handin directory is on AFS under:</p>
+
+<pre><code>/afs/cs/academic/class/15462-f15-users/ANDREWID/asst1/
+</code></pre>
+
+<p>Note that you may need to create the <code>asst1</code> directory yourself. All your files should be placed there. Please make sure you have a directory and are able to write to it well before the deadline; we are not responsible if you wait until 10 minutes before the deadline and run into trouble. Also, you may need to run <code>aklog cs.cmu.edu</code> after you login in order to read from/write to your submission directory.</p>
+
+<p>You should submit all files needed to build your project, this include:</p>
+
+<ul>
+<li>The <code>src</code> folder with all your source files</li>
+<li>The <code>svg</code> folder with <em>only</em> the SVG you created for task 8</li>
+</ul>
+
+<p>Please do not include:</p>
+
+<ul>
+<li>The<code>build</code> folder</li>
+<li>Executables</li>
+<li>Any additional binary or intermediate files generated in the build process.</li>
+</ul>
+
+<p>You should include a <code>README</code> file (plaintext or pdf) if you have implemented any of the extra credit features. In your <code>REAME</code> file, clearly indicate which extra credit features you have implemented. You should also briefly state anything that you think the grader should be aware of.</p>
+
+<p>Do not add levels of indirection when submitting. And please use the same arrangement as the handout. We will enter your handin directory, and run:</p>
+
+<pre><code>cd build &amp;&amp; rm -rf * &amp;&amp; cmake ../src &amp;&amp; make
+</code></pre>
+
+<p>and your code should build correctly. The code must compile and run on the GHC 5xxx cluster machines. Be sure to check to make sure you submit all files and that your code builds correctly.</p>
+
+<h3>
+<a id="friendly-advice-from-your-tas" class="anchor" href="#friendly-advice-from-your-tas" aria-hidden="true"><span class="octicon octicon-link"></span></a>Friendly Advice from your TAs</h3>
+
+<ul>
+<li><p>As always, start early.  There is a lot to implement in this assignment, and no official checkpoint, so don't fall behind!</p></li>
+<li><p>Be careful with memory allocation, as too many or too frequent heap allocations will severely degrade performance.</p></li>
+<li><p>Make sure you have a submission directory that you can write to as soon as possible. Notify course staff if this is not the case.</p></li>
+<li><p>While C has many pitfalls, C++ introduces even more wonderful ways to shoot yourself in the foot. It is generally wise to stay away from as many features as possible, and make sure you fully understand the features you do use.</p></li>
+</ul>
+
+<h3>
+<a id="resources-and-notes" class="anchor" href="#resources-and-notes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources and Notes</h3>
+
+<ul>
+<li><p><a href="https://msdn.microsoft.com/en-us/library/windows/desktop/cc627092(v=vs.85).aspx">Rasterization Rules in Direct3D 11</a></p></li>
+<li><p><a href="https://www.opengl.org/registry/doc/glspec40.core.20100311.pdf#page=156">Rasterization in OpenGL 4.0</a></p></li>
+<li><p><a href="https://github.com/Bryce-Summers/Writings/blob/master/Programming%20Guides/C_plus_plus_guide.pdf">Bryce's C++ Programming Guide</a></p></li>
+</ul>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/462cmu/asst2_geometry_proccessing">Asst2 geometry proccessing</a> is maintained by <a href="https://github.com/462cmu">462cmu</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
