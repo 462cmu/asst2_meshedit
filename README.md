@@ -1,3 +1,3 @@
 # asst2_meshedit
 
-Coming soon.
+(http://462cmu.github.io/asst2_meshedit/)
