@@ -245,8 +245,34 @@ namespace CMU462 {
          case 'C':
             collapseSelectedEdge();
             break;
+         case 'n':
+         case 'N':
+            selectNextHalfedge();
+            break;
+         case 't':
+         case 'T':
+            selectTwinHalfedge();
+            break;
          default:
             break;
+      }
+   }
+
+   void MeshEdit::selectNextHalfedge( void )
+   {
+      Halfedge* h = selectedFeature.element->getHalfedge();
+      if( h != NULL )
+      {
+         selectedFeature.element = elementAddress( h->next() );
+      }
+   }
+
+   void MeshEdit::selectTwinHalfedge( void )
+   {
+      Halfedge* h = selectedFeature.element->getHalfedge();
+      if( h != NULL )
+      {
+         selectedFeature.element = elementAddress( h->twin() );
       }
    }
 

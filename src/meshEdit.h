@@ -358,6 +358,10 @@ class MeshEdit : public Renderer {
   void mesh_down_sample();
   void mesh_resample();
 
+  // If a halfedge is selected, advances to the next or twin halfedge.
+  void selectNextHalfedge( void );
+  void selectTwinHalfedge( void );
+
   // The canonical resampler used to perform operations on meshes.
   MeshResampler resampler;
 
