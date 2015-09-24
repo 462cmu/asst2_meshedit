@@ -155,8 +155,15 @@ endif(WIN32)
 find_package(OpenGL REQUIRED)
 find_package(Freetype REQUIRED)
 
+# Use pkg-config for GLEW & GLFW if available
+find_package(PkgConfig QUIET)
+
 # GLEW
-find_package(GLEW QUIET)
+if(PKGCONFIG_FOUND)
+  pkg_search_module(GLEW QUIET glew)
+else(PKGCONFIG_FOUND)
+  find_package(GLEW QUIET)
+endif()
 if(NOT GLEW_FOUND)
   add_subdirectory("${PROJECT_SOURCE_DIR}/deps/glew")
   include_directories("${PROJECT_SOURCE_DIR}/deps/glew/include")
@@ -164,7 +171,11 @@ if(NOT GLEW_FOUND)
 endif()
 
 # GLFW
-find_package(GLFW QUIET)
+if(PKGCONFIG_FOUND)
+  pkg_search_module(GLFW QUIET glfw3)
+else(PKGCONFIG_FOUND)
+  find_package(GLFW QUIET)
+endif()
 if(NOT GLFW_FOUND)
   add_subdirectory("${PROJECT_SOURCE_DIR}/deps/glfw")
   include_directories("${PROJECT_SOURCE_DIR}/deps/glfw/include")
