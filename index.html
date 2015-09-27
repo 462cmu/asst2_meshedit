@@ -275,7 +275,8 @@
    {
       HalfEdgeCIter h_twin = h-&gt;twin(); // get the vertex of the current halfedge
       VertexCIter v = h_twin-&gt;vertex(); // vertex is 'source' of the half edge.
-                                        // so h-&gt;vertex() is v, whereas h_twin-&gt;vertex is the neighbor vertex.
+                                        // so h-&gt;vertex() is v,
+                                        // whereas h_twin-&gt;vertex() is the neighbor vertex.
 
       cout &lt;&lt; v-&gt;position &lt;&lt; endl; // print the vertex position
 
