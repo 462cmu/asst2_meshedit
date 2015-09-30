@@ -102,7 +102,7 @@
 
 <ol>
 <li>(FIRST WEEK) Local resampling - modifies the mesh in a small neighborhood around the currently selected mesh element.</li>
-<li>(SECOND WEEK) Global resampling - modifes the entire mesh, in an effort to improve the overall quality, size, etc.</li>
+<li>(SECOND WEEK) Global resampling - modifies the entire mesh, in an effort to improve the overall quality, size, etc.</li>
 </ol>
 
 <p>Each operation will be executed with a key press (see table below).</p>
@@ -201,7 +201,7 @@
 
 <p>For simple mesh operations (e.g., loading a mesh from disk and drawing it on screen), one can use a very simple mesh data structure like <strong>polygon soup</strong>, i.e., just a list of vertices together with a list of polygons connecting them.  For many geometry processing tasks, however, this simple representation is no longer sufficient (or leads to unnecessarily bad asymptotic performance).  In this assignment, we use the <strong>halfedge</strong> data structure, which provides a good tradeoff between simplicity and sophistication.</p>
 
-<p>The basic idea behing the halfedge data structure is that, in addition to the usual <strong>vertices</strong>, <strong>edges</strong>, and <strong>faces</strong> that make up a polygon mesh, we also have an entity called a <strong>halfedge</strong> that acts like a "glue" connecting the different elements.  It is this glue that allows us to easily navigate the mesh.</p>
+<p>The basic idea behind the halfedge data structure is that, in addition to the usual <strong>vertices</strong>, <strong>edges</strong>, and <strong>faces</strong> that make up a polygon mesh, we also have an entity called a <strong>halfedge</strong> that acts like a "glue" connecting the different elements.  It is this glue that allows us to easily navigate the mesh.</p>
 
 <p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/halfedgePointers.png" alt="The halfedge data structure"></p>
 
@@ -249,7 +249,7 @@
 <h4>
 <a id="the-halfedgemesh-class" class="anchor" href="#the-halfedgemesh-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>The HalfedgeMesh Class</h4>
 
-<p>For this assignment, we've already provided a C++ implementation of the halfedge data structure.  Although the detailed implementation might appear a bit initimidating at first (especially if you haven't had much experience with C++), the basic interface you'll need for this assignment is not much different from the abstract description given above.  For instance, suppose we have a face f and want to print out the positions of all its vertices.  We would write a routine like this:</p>
+<p>For this assignment, we've already provided a C++ implementation of the halfedge data structure.  Although the detailed implementation might appear a bit intimidating at first (especially if you haven't had much experience with C++), the basic interface you'll need for this assignment is not much different from the abstract description given above.  For instance, suppose we have a face f and want to print out the positions of all its vertices.  We would write a routine like this:</p>
 
 <pre><code>void printVertexPositions( FaceCIter f )
 {
@@ -498,7 +498,8 @@ for( EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ )
 <p>Sounds pretty simple, but this routine could very easily crash!  Do you see why?  The reason is fairly subtle: we are iterating over edges in the mesh by incrementing the iterator e (<code>e++</code>).  But since the routine <code>HalfedgeMesh::splitEdge()</code> is allowed to create and delete mesh elements, it might deallocate this edge before we get to increment this iterator to the next edge!  To be safe, we could instead write our loop like this:</p>
 
 <pre><code>// iterate over all edges in the mesh
-for( EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ )
+EdgeIter e = mesh.edgesBegin();
+while(e != mesh.edgesEnd())
 {
    // get the next edge NOW!
    EdgeIter nextEdge = e;
@@ -550,7 +551,7 @@ for( EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ )
 
 <ul>
 <li><p><em>Support surfaces with boundary.</em> For this you will need to make sure your edge split operation appropriately handles boundary edges.  You will also need to use a different weighted average for boundary vertices; see <a href="http://mrl.nyu.edu/%7Edzorin/papers/boiermartin2005sbt.pdf">Boier-Martin et al, "A Survey of Subdivision-Based Tools for Surface Modeling"</a> for more information.</p></li>
-<li><p><em>Implement additional subdivision schemes.</em> There are many alternatives to Loop subdivision.  Triangle subdivision schemes include Butterfly and <a href="http://mrl.nyu.edu/%7Edzorin/papers/zorin1996ism.pdf">modified Butterfly</a> (which are interpolating rather than approximating) and <a href="https://www.graphics.rwth-aachen.de/media/papers/sqrt31.pdf">Sqrt(3)</a> (which refines the mesh at a "slower" rate); the most popular subdivision scheme for quadrilateral meshes is <a href="https://en.wikipedia.org/wiki/Catmull%E2%80%93Clark_subdivision_surface">Catmull-Clark</a>.  There are also special subdivision schemes for handling, e.g., extraordinary vertices, called <a href="http://www.cise.ufl.edu/research/SurfLab/papers/09bi3c2polar.pdf">polar subdivision</a>.</p></li>
+<li><p><em>Implement additional subdivision schemes.</em> There are many alternatives to Loop subdivision.  Triangle subdivision schemes include Butterfly and <a href="http://mrl.nyu.edu/%7Edzorin/papers/zorin1996ism.pdf">modified Butterfly</a> (which are interpolating rather than approximating) and <a href="https://www.graphics.rwth-aachen.de/media/papers/sqrt31.pdf">Sqrt(3)</a> (which refines the mesh at a "slower" rate); the most popular subdivision scheme for quadrilateral meshes is <a href="https://en.wikipedia.org/wiki/Catmull%E2%80%93Clark_subdivision_surface">Catmull-Clark</a>.  There are also special subdivision schemes for handling meshes with high degree vertices, e.g., extraordinary vertices, called <a href="http://www.cise.ufl.edu/research/SurfLab/papers/09bi3c2polar.pdf">polar subdivision</a>.</p></li>
 <li><p><em>Implement additional subdivision features.</em> You may have noticed that subdivision generally makes the surface <em>smoother</em>, but of course some surfaces have sharp features that you might like to preserve.  Pixar's <a href="http://graphics.pixar.com/opensubdiv/docs/subdivision_surfaces.html">OpenSubdiv page</a> describes several features of subdivision surfaces you might add to your implementation.</p></li>
 <li><p><em>Implement displacement mapping.</em> One reason subdivision surfaces are often used in practice is that they lend themselves nicely to adding lots of geometric detail, via a special texture map called a <em>displacement map</em>.  In a nutshell, the fine-level vertices get offset by an amount that is dictated by a bitmap image rather than a fixed subdivision rule.  See for instance <a href="http://research.microsoft.com/en-us/um/people/hoppe/proj/dss/">this paper</a>.</p></li>
 <li><p><em>Implement a real-time subdivision editor.</em> Another reason subdivision surfaces are so popular is that they provide an attractive <em>modeling</em> paradigm, i.e., by dragging on the vertices of a coarse mesh, one can interactively manipulate a smooth subdivision surface using a very small number of degrees of freedom.  To implement this kind of modeling paradigm in the current tool, you will need to modify the viewer class in <code>meshEdit.cpp</code> and <code>meshEdit.h</code>.  You will likely also need to come up with a more efficient way of evaluating the fine subdivision surface from the coarse control cage.  For instance, since the vertex coordinates at each subdivision step are a linear combination of the vertex coordinates at the previous step, you could precompute the final relationship between the original coarse vertices and the final fine vertices.  (If you're really feeling ambitious, you could do some of the work in a GPU shader program!)</p></li>
@@ -581,10 +582,11 @@ for( EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ )
 
 <p>where "^T" denotes the transpose of a vector.  The term <strong>v</strong> <strong>v</strong>^T is an <a href="https://en.wikipedia.org/wiki/Outer_product">outer product</a> of the vector <strong>v</strong> with itself, which gives us a symmetric matrix K = <strong>v</strong> <strong>v</strong>^T.  In components, this matrix would look like</p>
 
-<p>a^2   ab    ac   ad
-   ab    b^2   bc   bd
-   ac    bc    c^2  cd
-   ad    bd    cd   d^2</p>
+<pre><code>a^2   ab    ac   ad
+ab    b^2   bc   bd
+ac    bc    c^2  cd
+ad    bd    cd   d^2
+</code></pre>
 
 <p>but in our code framework you can simply compute it using the method <code>outer( Vector4D, Vector4D )</code> in <code>matrix4x4.h</code> that takes a pair of vectors in homogeneous coordinates and returns the outer product as a 4x4 matrix.  We will refer to this matrix as a "quadric," because it also describes a <a href="https://en.wikipedia.org/wiki/Quadric">quadric surface</a>.</p>
 
@@ -612,17 +614,19 @@ for( EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ )
 
 <p>A <strong>x</strong> = <strong>b</strong>,</p>
 
-<p>where A is the upper-left 3x3 block of K, and b is <em>minus</em> the upper-right 3x1 column.  In other words, the entries of B are just</p>
+<p>where A is the upper-left 3x3 block of K, and b is <em>minus</em> the upper-right 3x1 column.  In other words, the entries of A are just</p>
 
-<p>a^2   ab    ac 
-   ab    b^2   bc
-   ac    bc    c^2</p>
+<pre><code>a^2   ab    ac 
+ab    b^2   bc
+ac    bc    c^2
+</code></pre>
 
 <p>and the entries of b are</p>
 
-<p>-ad
-   -bd
-   -cd</p>
+<pre><code>-ad
+-bd
+-cd
+</code></pre>
 
 <p>The cost associated with this solution can be found by plugging <strong>x</strong> back into our original expression, i.e., the cost is just</p>
 
@@ -709,7 +713,7 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 <li>Store the edge in <code>EdgeRecord::edge</code>.</li>
 </ol>
 
-<p>The upsampling routine can then be implemented by following this basic recipe:</p>
+<p>The downsampling routine can then be implemented by following this basic recipe:</p>
 
 <ol>
 <li>Compute quadrics for each face by simply writing the plane equation for that face in homogeneous coordinates, and building the corresponding quadric matrix using <code>Matrix4x4::outer()</code>.  This matrix should be stored in <code>Face::quadric</code>.</li>
@@ -801,7 +805,7 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 <li>Collapse all edges that are shorter than 4L/5.</li>
 <li>Flip all edges that decrease the total deviation from degree 6.</li>
 <li>Compute the centroids for all the vertices.</li>
-<li>Move each vertex in the tangetn direction toward its centroid.</li>
+<li>Move each vertex in the tangent direction toward its centroid.</li>
 </ol>
 
 <p>Repeating this procedure about 5 or 6 times should yield results like the ones seen below; you may want to repeat the smoothing step 10-20 times for each "outer" iteration.</p>
