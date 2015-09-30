@@ -431,27 +431,420 @@ Halfedge::isBoundary()
 
 <p>Many popular modeling tools are based on the same kinds of local remeshing operations you've been implementing for this assignment.  For instance, a very common operation is to "bevel" or "fillet" an edge, to make sharp corners round.  Alternatively, faces can be extruded to add more detail to an existing surface.  Our basic editor could be turned into a more full-fledged modeling tool by implementing common operations found in packages like <strong>Maya</strong> or <strong>Blender</strong>---or inventing your own!  (An additional challenge here is that you may have to add some additional functionality to the GUI (graphical user interface), by modifying methods in <code>MeshEditor.cpp</code>, in order to give users an interface to your new editing tools.)</p>
 
-<h4>
-<a id="tasks-4-5--6-global-surface-upsampling-downsampling-and-resampling" class="anchor" href="#tasks-4-5--6-global-surface-upsampling-downsampling-and-resampling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tasks 4, 5, &amp; 6: Global Surface Upsampling, Downsampling, and Resampling</h4>
+<h3>
+<a id="global-surface-remeshing" class="anchor" href="#global-surface-remeshing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Global Surface Remeshing</h3>
 
-<p>The three local remeshing operations <strong>split</strong>, <strong>collapse</strong>, and <strong>flip</strong> are effectively small steps toward upsampling, downsampling, and resampling the surface.  In the second half of the assignment, you will combine these operations in various ways to perform a global remeshing of the surface.  Stay tuned for more information!</p>
+<p>The three local remeshing operations <strong>split</strong>, <strong>collapse</strong>, and <strong>flip</strong> are effectively small steps toward upsampling, downsampling, and resampling the surface.  In the second half of the assignment, you will combine these operations in various ways to perform a global remeshing of the surface.  You can complete the following tasks in any order; they do not depend on each-other.</p>
+
+<p>To make life easier during these remaining tasks, we also ask that you modify your atomic edge operations (flip, split, and collapse) to return the following values (rather than <code>void</code>, as in the original implementation):</p>
+
+<ul>
+<li>
+<code>HalfedgeMesh::splitEdge()</code> - This method should now return a VertexIter pointing to the newly inserted edge midpoint.  The halfedge of this vertex should point to one of the halfedges along the edge that was split (rather than the newly inserted edges).  This convention will make it easier to implement subdivision.</li>
+<li>
+<code>HalfedgeMesh::collapseEdge()</code> - This method should now return a VertexIter pointing to the new vertex, corresponding to the collapsed edge.  Having a pointer to this value will make it easier to implement quadric error simplification.</li>
+<li>
+<code>HalfedgeMesh::flipEdge()</code> - This method should now return an EdgeIter pointing to the edge that was flipped (rather than void).  In principle, this edge should be the same as the argument to <code>flipEdge()</code>; adding this convention simply makes the interface to these methods more uniform (and is perhaps useful in the future).</li>
+</ul>
+
+<h4>
+<a id="task-4-upsampling-via-loop-subdivision" class="anchor" href="#task-4-upsampling-via-loop-subdivision" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 4: Upsampling via Loop Subdivision</h4>
+
+<p>In image processing, we often have a low resolution image that we want to display at a higher resolution.  Since we only have a few samples of the original signal, we need to somehow interpolate or <em>upsample</em> the image.  One idea would be to simply cut each pixel into four, leaving the color values unchanged, but this leads to a blocky appearance.  Instead we might try a more sophisticated scheme (like bilinear or trilinear interpolation) that yields a smoother appearance.</p>
+
+<p>In geometry processing, one encounters the same situation: we may have a low-resolution polygon mesh that we wish to upsample for display, simulation, etc.  Simply splitting each polygon into smaller pieces doesn't help, because it does nothing to alleviate blocky silhouettes or chunky features.  Instead, we need an upsampling scheme that nicely interpolates or approximates the original data.  Polygon meshes are quite a bit trickier than images, however, since our sample points are generally at <em>irregular</em> locations, i.e., they are no longer found at regular intervals on a grid.</p>
+
+<p>The scheme we'll investigate in this task is called <em>Loop subdivision</em>, which is an approximating subdivision scheme commonly used for triangle meshes.  It consists of two basic steps:</p>
+
+<ol>
+<li>Split each triangle into four by connecting edge midpoints (sometimes called "4-1 subdivision").</li>
+<li>Update vertex positions as a particular weighted average of neighboring positions.</li>
+</ol>
+
+<p>4-1 subdivision looks like this:</p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/41Subdivision.png" alt="41Subdivision"></p>
+
+<p>And the following picture illustrates the weighted average:</p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/LoopWeights.png" alt="LoopWeights"></p>
+
+<p>If we repeatedly apply these two steps, we will converge to a fairly smooth approximation of our original mesh.  In this task you will implement Loop subdivision using the atomic edge operations you implemented in Tasks 1-3.  In particular, you can achieve a 4-1 subdivision by applying the following strategy:</p>
+
+<ol>
+<li>Split every edge of the mesh <em>in any order whatsoever</em>.</li>
+<li>Flip any new edge that touches a new vertex and an old vertex.</li>
+</ol>
+
+<p>The following pictures (courtesy Denis Zorin) illustrate this idea:</p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/FlippingSubdivision.png" alt="FlippingSubdivision"></p>
+
+<h5>
+<a id="implementation" class="anchor" href="#implementation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementation</h5>
+
+<p>When dealing with a dynamic data structure like a halfedge mesh, one must think <strong>very carefully</strong> about the order in which mesh elements are processed---it is quite easy to delete an element at one point in the code, and try to access it later (usually resulting in a crash!).  For instance, suppose we write a loop like this:</p>
+
+<pre><code>// iterate over all edges in the mesh
+for( EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ )
+{
+   if( some condition is met )
+   {
+      mesh.splitEdge( e );
+   }
+}
+</code></pre>
+
+<p>Sounds pretty simple, but this routine could very easily crash!  Do you see why?  The reason is fairly subtle: we are iterating over edges in the mesh by incrementing the iterator e (<code>e++</code>).  But since the routine <code>HalfedgeMesh::splitEdge()</code> is allowed to create and delete mesh elements, it might deallocate this edge before we get to increment this iterator to the next edge!  To be safe, we could instead write our loop like this:</p>
+
+<pre><code>// iterate over all edges in the mesh
+for( EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++ )
+{
+   // get the next edge NOW!
+   EdgeIter nextEdge = e;
+   nextEdge++;
+
+   // now, even if splitting the edge deletes it...
+   if( some condition is met )
+   {
+      mesh.splitEdge( e );
+   }
+
+   // ...we still have a valid reference to the next edge.
+   e = nextEdge;
+}
+</code></pre>
+
+<p>Note that this loop is just <em>one example</em>---in general, you should think about which elements might be affected by a local mesh operation when writing your loops.  Likewise, you can make life easier on yourself by making sure that your atomic edge operations provide certain guarantees.  For instance, if your implementation of <code>HalfedgeMesh::flipEdge()</code> guarantees that no edges will be created or destroyed (as it should), then you can safely do edge flips inside a loop without worrying about these kinds of side effects.</p>
+
+<p>For Loop subdivision, we have also provided some additional data members that will make it easy to keep track of the data you need to update the connectivity and vertex positions.  In particular:</p>
+
+<ul>
+<li>
+<code>Vertex::newPosition</code> can be used as temporary storage for the new position (computed via the weighted average above).  Note that you should <em>not</em> change the value of <code>Vertex::position</code> until <em>all</em> the new vertex positions have been computed---otherwise, you are taking averages of values that have already been averaged!</li>
+<li>Likewise, <code>Edge::newPosition</code> can be used to store the position of the vertices that will ultimately be inserted at edge midpoints.  Again, these values should be computed from the original values (before subdivision), and applied to the new vertices only at the very end.</li>
+<li>
+<code>Vertex::isNew</code> can be used to flag whether a vertex was part of the original mesh, or is a vertex newly inserted by subdivision (at an edge midpoint).</li>
+<li>
+<code>Edge::isNew</code> likewise flags whether an edge is a piece of an edge in the original mesh, or is an entirely new edge created during the subdivision step.</li>
+</ul>
+
+<p>Given this setup, we strongly suggest that it will be easiest to implement subdivision according to the following "recipe" (though you are of course welcome to try doing things a different way!).  The basic strategy is to <em>first</em> compute the new vertex positions (storing the results in the <code>newPosition</code> members of both vertices and edges), and only <em>then</em> update the connectivity.  Doing it this way will be much easier, since traversal of the original (coarse) connectivity is much simpler than traversing the new (fine) connectivity.  In more detail:</p>
+
+<ol>
+<li>Mark all vertices as belonging to the original mesh by setting <code>Vertex::isNew</code> to <code>false</code> for all vertices in the mesh.</li>
+<li>Compute updated positions for all vertices in the original mesh using the vertex subdivision rule, and store them in <code>Vertex::newPosition</code>.</li>
+<li>Compute new positions associated with the vertices that will be inserted at edge midpoints, and store them in <code>Edge::newPosition</code>.</li>
+<li>Split every edge in the mesh, being careful about how the loop is written.  In particular, you should make sure to iterate only over edges of the original mesh.  Otherwise, you will keep splitting edges that you just created!</li>
+<li>Flip any new edge that connects an old and new vertex.</li>
+<li>Finally, copy the new vertex positions (<code>Vertex::newPosition</code>) into the usual vertex positions (<code>Vertex::position</code>).</li>
+</ol>
+
+<p>If you made the requested modification to the return value of <code>HalfedgeMesh::splitEdge()</code> (see above), then an edge split will now return an iterator to the newly inserted vertex, and the halfedge of this vertex will point along the edge of the original mesh.  This iterator is useful because it can be used to (i) flag the vertex returned by the split operation as a new vertex, and (ii) flag each outgoing edge as either being new or part of the original mesh.  (In other words, Step 3 is a great time to set the members <code>isNew</code> for vertices and edges created by the split.  It is also a good time to copy the <code>newPosition</code> field from the edge being split into the <code>newPosition</code> field of the newly inserted vertex.)</p>
+
+<p>You might try implementing this algorithm in stages, e.g., <em>first</em> see if you can correctly update the connectivity, <em>then</em> worry about getting the vertex positions right.  Some examples below illustrate the correct behavior of the algorithm.</p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/SubdivisionExamples.png" alt="SubdivisionExamples"></p>
+
+<p><strong>Possible Extra Credit Extensions:</strong></p>
+
+<ul>
+<li><p><em>Support surfaces with boundary.</em> For this you will need to make sure your edge split operation appropriately handles boundary edges.  You will also need to use a different weighted average for boundary vertices; see <a href="http://mrl.nyu.edu/%7Edzorin/papers/boiermartin2005sbt.pdf">Boier-Martin et al, "A Survey of Subdivision-Based Tools for Surface Modeling"</a> for more information.</p></li>
+<li><p><em>Implement additional subdivision schemes.</em> There are many alternatives to Loop subdivision.  Triangle subdivision schemes include Butterfly and <a href="http://mrl.nyu.edu/%7Edzorin/papers/zorin1996ism.pdf">modified Butterfly</a> (which are interpolating rather than approximating) and <a href="https://www.graphics.rwth-aachen.de/media/papers/sqrt31.pdf">Sqrt(3)</a> (which refines the mesh at a "slower" rate); the most popular subdivision scheme for quadrilateral meshes is <a href="https://en.wikipedia.org/wiki/Catmull%E2%80%93Clark_subdivision_surface">Catmull-Clark</a>.  There are also special subdivision schemes for handling, e.g., extraordinary vertices, called <a href="http://www.cise.ufl.edu/research/SurfLab/papers/09bi3c2polar.pdf">polar subdivision</a>.</p></li>
+<li><p><em>Implement additional subdivision features.</em> You may have noticed that subdivision generally makes the surface <em>smoother</em>, but of course some surfaces have sharp features that you might like to preserve.  Pixar's <a href="http://graphics.pixar.com/opensubdiv/docs/subdivision_surfaces.html">OpenSubdiv page</a> describes several features of subdivision surfaces you might add to your implementation.</p></li>
+<li><p><em>Implement displacement mapping.</em> One reason subdivision surfaces are often used in practice is that they lend themselves nicely to adding lots of geometric detail, via a special texture map called a <em>displacement map</em>.  In a nutshell, the fine-level vertices get offset by an amount that is dictated by a bitmap image rather than a fixed subdivision rule.  See for instance <a href="http://research.microsoft.com/en-us/um/people/hoppe/proj/dss/">this paper</a>.</p></li>
+<li><p><em>Implement a real-time subdivision editor.</em> Another reason subdivision surfaces are so popular is that they provide an attractive <em>modeling</em> paradigm, i.e., by dragging on the vertices of a coarse mesh, one can interactively manipulate a smooth subdivision surface using a very small number of degrees of freedom.  To implement this kind of modeling paradigm in the current tool, you will need to modify the viewer class in <code>meshEdit.cpp</code> and <code>meshEdit.h</code>.  You will likely also need to come up with a more efficient way of evaluating the fine subdivision surface from the coarse control cage.  For instance, since the vertex coordinates at each subdivision step are a linear combination of the vertex coordinates at the previous step, you could precompute the final relationship between the original coarse vertices and the final fine vertices.  (If you're really feeling ambitious, you could do some of the work in a GPU shader program!)</p></li>
+</ul>
+
+<h4>
+<a id="task-5-downsampling-via-quadric-error-simplification" class="anchor" href="#task-5-downsampling-via-quadric-error-simplification" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 5: Downsampling via Quadric Error Simplification</h4>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/QEMSimplification.png" alt="QEMSimplification"></p>
+
+<p>Just as with images, meshes often have far more samples than we really need.  In this task you will simplify a given model by applying <em>quadric error simplification</em>.  This method was originally developed at CMU by Michael Garland and Paul Heckbert, in their paper <a href="http://www.cs.cmu.edu/%7E./garland/quadrics/quadrics.html">Surface Simplification Using Quadric Error Metrics</a>.  (Looking at this paper---or the many slides and presentations online that reference it---may be very helpful in understanding and implementing this part of the assignment!)</p>
+
+<p>The basic idea is to iteratively collapse edges until we reach the desired number of triangles.  The more edges we collapse, the simpler the mesh becomes.  The only question is: which edges should we collapse?  And where should we put the new vertex when we collapse an edge?  Finding the sequence of edge collapses (and vertex positions) that give an <em>optimal</em> approximation of the surface would be very difficult---likely impossible!  Garland and Heckbert instead proposed a simple, greedy scheme that works quite well in practice, and is the basis of many mesh simplification tools today.  Roughly speaking, we're going to write down a function that measures the distance to a given triangle, and then "accumulate" this function as many triangles get merged together.</p>
+
+<p>More precisely, we can write the distance d of a point <strong>x</strong> to a plane with normal <strong>N</strong> passing through a point <strong>p</strong> as</p>
+
+<p>d(<strong>x</strong>) = <strong>N</strong> • (<strong>x</strong>-<strong>p</strong>)</p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/PlaneNormalEquation.png" alt="PlaneNormalEqn"></p>
+
+<p>In other words, we measure the extent of the vector from <strong>p</strong> to <strong>x</strong> along the normal direction.  This quantity gives us a value that is either <em>positive</em> (above the plane), or <em>negative</em> (below the plane).  Suppose that <strong>x</strong> has coordinates (x,y,z), <strong>N</strong> has coordinates (a,b,c), and let d = <strong>N</strong> •  Then in <em>homogeneous</em> coordinates, the distance to the plane is just</p>
+
+<p><strong>u</strong> • <strong>v</strong></p>
+
+<p>where <strong>u</strong> = (x,y,z,1) and <strong>v</strong> = (a,b,c,d).  When we're measuring the quality of an approximation, we don't care whether we're above or below the surface; just how <em>far away</em> we are from the original surface.  Therefore, we're going to consider the <em>square</em> of the distance, which we can write in homogeneous coordinates as</p>
+
+<p>(<strong>u</strong> • <strong>v</strong>)^2 = <strong>u</strong>^T <strong>v</strong> <strong>v</strong>^T <strong>u</strong>,</p>
+
+<p>where "^T" denotes the transpose of a vector.  The term <strong>v</strong> <strong>v</strong>^T is an <a href="https://en.wikipedia.org/wiki/Outer_product">outer product</a> of the vector <strong>v</strong> with itself, which gives us a symmetric matrix K = <strong>v</strong> <strong>v</strong>^T.  In components, this matrix would look like</p>
+
+<p>a^2   ab    ac   ad
+   ab    b^2   bc   bd
+   ac    bc    c^2  cd
+   ad    bd    cd   d^2</p>
+
+<p>but in our code framework you can simply compute it using the method <code>outer( Vector4D, Vector4D )</code> in <code>matrix4x4.h</code> that takes a pair of vectors in homogeneous coordinates and returns the outer product as a 4x4 matrix.  We will refer to this matrix as a "quadric," because it also describes a <a href="https://en.wikipedia.org/wiki/Quadric">quadric surface</a>.</p>
+
+<p>Ok, so the matrix K tells us something about the distance to a plane.  We can also get some idea of how far we are from a <em>vertex</em> by considering the sum of the squared distances to the planes passing through all triangles that touch that vertex.  In other words, we will say that the distance to a small neighborhood around the vertex i can be approximated by the sum of the quadrics on the incident faces ijk:</p>
+
+<p>K_i = (sum over all faces ijk touching vertex i) K_ijk.</p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/VertexNormals.png" alt="VertexNormals"></p>
+
+<p>Likewise, the distance to an <em>edge</em> ij will be approximated by the sum of the quadrics at its two endpoints:</p>
+
+<p>K_ij = K_i + K_j.</p>
+
+<p>In your code, we have added a member <code>Matrix4x4 Face::quadric</code> and <code>Matrix4x4 Vertex::quadric</code> to the faces and vertices of the halfedge mesh.  The sums above should then be easy to compute--you can just add up the Matrix4x4 objects around a vertex or along an edge using the usual "+" operator.  You do not need to write an explicit loop over the 16 entries of the matrix.</p>
+
+<p>Once you have a quadric K associated with an edge ij, you can ask the following question: if we collapse the edge to a point <strong>x</strong>, where should we put the new point so that it minimizes the (approximate) distance to the original surface?  In other words, where should it go so that it minimizes the quantity</p>
+
+<p><strong>x</strong>^T K <strong>x</strong>?</p>
+
+<p>Just like any other function, we can look for the minimum by taking the derivative with respect to <strong>x</strong> and setting it equal to zero.  (By the way, in this case we're always going to get a <em>minimum</em> and not a <em>maximum</em> because the matrices K are all <a href="https://en.wikipedia.org/wiki/Positive-definite_matrix">positive-definite</a>.)  In other words, we want to solve the small (4x4) linear system</p>
+
+<p>K <strong>u</strong> = 0</p>
+
+<p>for the optimal position <strong>u</strong>, expressed in homogeneous coordinates.  We can simplify this situation a bit by remembering that the homogeneous coordinate for a point in 3-space is just 1.  After a few simple manipulations, then, we can rewrite this same system as an even smaller 3x3 linear system</p>
+
+<p>A <strong>x</strong> = <strong>b</strong>,</p>
+
+<p>where A is the upper-left 3x3 block of K, and b is <em>minus</em> the upper-right 3x1 column.  In other words, the entries of B are just</p>
+
+<p>a^2   ab    ac 
+   ab    b^2   bc
+   ac    bc    c^2</p>
+
+<p>and the entries of b are</p>
+
+<p>-ad
+   -bd
+   -cd</p>
+
+<p>The cost associated with this solution can be found by plugging <strong>x</strong> back into our original expression, i.e., the cost is just</p>
+
+<p><strong>x</strong>^T K x</p>
+
+<p>where K is the quadric associated with the edge.  Fortunately, <em>you do not need to write any code to solve this linear system</em>.  It can be solved using the method <code>Matrix3x3::inv()</code> which computes the inverse of a 3x3 matrix.  In particular, you can write something like this:</p>
+
+<pre><code>Matrix3x3 A; // computed by accumulating quadrics and then extacting the upper-left 3x3 block
+Vector3D b;  // computed by extracting minus the upper-right 3x1 column from the same matrix
+Vector3D x = A.inv() * b; // solve Ax = b for x, by hitting both sides with the inverse of A
+</code></pre>
+
+<p>If you're a bit lost at this point, don't worry!  There are a lot of details to go through, and we'll summarize everything again in the implementation section.  The main idea to keep in mind right now is:</p>
+
+<ul>
+<li>we're storing a matrix at every vertex that encodes (roughly) the distance to the surface, and</li>
+<li>for each edge, we want to find the point that is (roughly) as close as possible to the surface, according to the matrices at its endpoints.</li>
+</ul>
+
+<p>As we collapse edges, the matrices at endpoints will be combined by just adding them together.  So, as we perform more and more edge collapses, these matrices will try to capture the distance to a larger and larger region of the original surface.</p>
+
+<p>The one final thing we want to think about is performance.  At each iteration, we want to collapse the edge that results in the <em>least</em> deviation from our original surface.  But testing every edge, every single iteration sounds pretty expensive!  (Something like O(n^2).)  Instead, we're going to put all our edges into a <a href="https://en.wikipedia.org/wiki/Priority_queue">priority queue</a> that efficiently keeps track of the "best" edge for us, even as we add and remove edges from our mesh.  In the code framework, we actually introduce a new class called an <code>EdgeRecord</code> that encodes all the essential information about our edge:</p>
+
+<pre><code>// An edge record keeps track of all the information about edges
+// that we need while applying our mesh simplification algorithm.
+class EdgeRecord
+{
+   public:
+      EdgeRecord( void ) {}
+      EdgeRecord( EdgeIter&amp; _edge );
+      // The second constructor takes an edge, and computes all
+      // the essential data.  In particular, it computes the sum
+      // of the quadrics at the two endpoints, and solves for the
+      // optimal midpoint position as measured by this quadric.
+      // It also stores the value of this quadric as the "score"
+      // used by the priority queue.
+
+      EdgeIter edge; // the edge referred to by this record
+
+      Vector3D optimalPoint; // the optimal point, if we were
+                             // to collapse this edge next
+
+      double cost; // the cost associated with collapsing this edge,
+                   // which is very (very!) roughly something like
+                   // the distance we'll deviate from the original
+                   // surface if this edge is collapsed
+};
+</code></pre>
+
+<p>To initialize an edge record for a given edge, you just have to write</p>
+
+<pre><code>EdgeRecord myRecord( e );
+</code></pre>
+
+<p>In other words, you hand it the edge to be initialized.  This record in turn gets added to a priority queue, which stores all the halfedges, sorted according to the cost of collapsing them:</p>
+
+<pre><code>MutablePriorityQueue queue;
+queue.insert( e );
+</code></pre>
+
+<p>If we ever want to know what the best edge is to collapse, we can just look at the top of the priority queue:</p>
+
+<pre><code>EdgeRecord bestEdge = queue.top();
+</code></pre>
+
+<p>More documentation is provided in the header file <code>MutablePriorityQueue.h</code>.</p>
+
+<h5>
+<a id="implementation-1" class="anchor" href="#implementation-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementation</h5>
+
+<p>Downsampling via edge collapse is perhaps the most difficult of the three algorithms conceptually, but it is actually not too hard to implement.  In this task you will need to implement two methods:</p>
+
+<pre><code>EdgeRecord::EdgeRecord( EdgeIter e ); // initializer for an edge record
+MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric error simplification
+</code></pre>
+
+<p>As discussed above, the edge record initializer should:</p>
+
+<ol>
+<li>Compute a quadric for the edge as the sum of the quadrics at endpoints.</li>
+<li>Build a 3x3 linear system for the optimal collapsed point, as described above.</li>
+<li>Solve this system and store the optimal point in <code>EdgeRecord::optimalPoint</code>.</li>
+<li>Compute the corresponding error value and store it in <code>EdgeRecord::cost</code>.</li>
+<li>Store the edge in <code>EdgeRecord::edge</code>.</li>
+</ol>
+
+<p>The upsampling routine can then be implemented by following this basic recipe:</p>
+
+<ol>
+<li>Compute quadrics for each face by simply writing the plane equation for that face in homogeneous coordinates, and building the corresponding quadric matrix using <code>Matrix4x4::outer()</code>.  This matrix should be stored in <code>Face::quadric</code>.</li>
+<li>Compute an initial quadric for each vertex by adding up the quadrics at all the faces touching that vertex.  This matrix should be stored in <code>Vertex::quadric</code>.  (Note that these quadrics will get updated as edges are collapsed.)</li>
+<li>For each edge, create an <code>EdgeRecord</code> and insert it into one global <code>MutablePriorityQueue</code>.</li>
+<li>Until a target number of triangles is reached, collapse the best/cheapest edge (as determined by the priority queue), and set the quadric at the new vertex to the sum of the quadrics at the endpoints of the original edge.  You will also have to update the cost of any edge connected to this vertex.</li>
+</ol>
+
+<p>The algorithm should terminate when a target number of triangles is reached---for the purpose of this assignment, you should set this number to 1/4th the number of triangles in the input (since subdivision will give you a factor of 4 in the opposite direction).  Note that to <em>get</em> the best element from the queue you call <code>MutablePriorityQueue::top()</code>, whereas to <em>remove</em> the best element from the top you must call <code>MutablePriorityQueue::pop()</code> (the separation of these two tasks is fairly standard in STL-like data structures).</p>
+
+<p>As with subdivision, it is critical that you carefully reason about which mesh elements get added/deleted in what order---particularly in Step 4.  A good way to implement Step 4 would be:</p>
+
+<ol>
+<li>Get the cheapest edge from the queue.</li>
+<li>Compute the new quadric by summing the quadrics at its two endpoints.</li>
+<li><strong>Remove any edge touching either of its endpoints from the queue.</strong></li>
+<li>Collapse the edge.</li>
+<li>Set the quadric of the new vertex to the quadric computed in Step 2.</li>
+<li><strong>Insert any edge touching the new vertex into the queue, creating new edge records for each of them.</strong></li>
+<li>Remove the cheapest edge from the queue by calling <code>pop()</code>.</li>
+</ol>
+
+<p>Steps 3 and 6 are highlighted because it is easy to get these steps wrong.  For instance, if you collapse the edge first, you may no longer be able to access the edges that need to be removed from the queue.</p>
+
+<p>A working implementation should look something like the examples below.  You may find it easiest to implement this algorithm in stages.  For instance, <em>first</em> get the edge collapses working, using just the edge midpoint rather than the optimal point, <em>then</em> worry about solving for the point that minimizes quadric error.</p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/QEMExamples.png" alt="QEMExamples"></p>
+
+<p><strong>Possible Extra Credit Extensions:</strong></p>
+
+<ul>
+<li><p>The original quadric error algorithm allowed not only edge collapses, but arbitrary <em>vertex pair</em> collapses, i.e., two vertices on different connected components of a surface could be joined together.  This allows large, complicated meshes with many pieces to be approximated as just a few simple pieces---for instance, a bag of popcorn can be approximated by a continuous surface (useful for rendering from afar!).  Can you augment your existing implementation to allow for arbitrary vertex pairs?</p></li>
+<li><p>In this assignment, we only focus on simplifying the geometry.  What if our mesh has other data associated with it (texture, color, etc.)?  One can apply <a href="http://www.cs.cmu.edu/%7E./garland/Papers/quadric2.pdf">similar methods</a> to simplify this richer data as well, basically by incorporating these additional attributes into the quadric.</p></li>
+<li><p>Modify the quadric error criterion to take other perceptual criteria into account.  (E.g., visibility from a certain camera view.)</p></li>
+<li><p>Iterative edge collapse is not the only way to get a simplified approximation of a surface.  A very different approach is <a href="http://www.geometry.caltech.edu/pubs/CAD04.pdf">variational shape approximation</a> (VSA), which globally solves for a collection of planes that approximate the surface.</p></li>
+</ul>
+
+<h4>
+<a id="task-6-resampling-via-isotropic-remeshing" class="anchor" href="#task-6-resampling-via-isotropic-remeshing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 6: Resampling via Isotropic Remeshing</h4>
+
+<p>Another thing we might want to do with a mesh is keep the number of samples roughly the same, while improving the shape of individual triangles.  In this task, we will try to make the mesh as "uniform" as possible, i.e., triangles as close as possible to equilaterial triangles of equal size, and vertex degrees as close as possible to 6.  The algorithm you will implement is based on the paper <a href="http://graphics.uni-bielefeld.de/publications/disclaimer.php?dlurl=sgp04.pdf">Botsch and Kobbelt, "A Remeshing Approach to Multiresolution Modeling"</a> (Section 4), and can be summarized in just a few simple steps:</p>
+
+<ol>
+<li>If an edge is too long, split it.</li>
+<li>If an edge is too short, collapse it.</li>
+<li>If flipping an edge improves the degree of neighboring vertices, flip it.</li>
+<li>Move vertices toward the average of their neighbors.</li>
+</ol>
+
+<p>Repeating this simple process several times typically produces a mesh with fairly uniform triangle areas, angles, and vertex degrees.  However, each of the steps deserves slightly more explanation.</p>
+
+<h5>
+<a id="edge-splitting--collapsing" class="anchor" href="#edge-splitting--collapsing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Edge Splitting / Collapsing</h5>
+
+<p>Ultimately we want all of our triangles to be about the same size, which means we want edges to all have roughly the same length.  As suggested in the paper by Botsch and Kobbelt, we will aim to keep our edges no longer than 4/3rds of the <strong>mean</strong> edge length L in the input mesh, and no shorter than 4/5ths of L.  In other words, if an edge is longer than 4L/3, split it; if it is shorter than 4L/5, collapse it.  We recommend performing all of the splits first, then doing all of the collapses (though as usual, you should be careful to think about when and how mesh elements are being allocated/deallocated).</p>
+
+<h5>
+<a id="edge-flipping" class="anchor" href="#edge-flipping" aria-hidden="true"><span class="octicon octicon-link"></span></a>Edge Flipping</h5>
+
+<p>We want to flip an edge any time it reduces the total deviation from regular degree (degree 6).  In particular, let a1, a2 be the degrees of an edge that we're thinking about flipping, and let b1, b2 be the degrees of the two vertices across from this edge.  The total deviation in the initial configuration is |a1-6| + |a2-6| + |b1-6| + |b2-6|.  You should be able to <em>easily</em> compute the deviation after the edge flip <strong>without actually performing the edge flip</strong>; if this number decreases, then the edge flip should be performed.  We recommend flipping all edges in a single pass, after the edge collapse step.</p>
+
+<h5>
+<a id="vertex-averaging" class="anchor" href="#vertex-averaging" aria-hidden="true"><span class="octicon octicon-link"></span></a>Vertex Averaging</h5>
+
+<p>Finally, we also want to optimize the geometry of the vertices.  A very simple heuristic is that a mesh will have reasonably well-shaped elements if each vertex is located at the center of its neighbors.  To keep your code clean and simple, we ask that you implement the method <code>Vertex::computeCentroid()</code> which should compute the average position of the neighbors and store it in the member <code>Vertex::centroid</code>.  The reason this value must be stored in a temporary variable and not <em>immediately</em> used to replace the current position is similar to the reason we stored temporary vertex positions in our subdivision scheme: we don't want to be taking averages of vertices that have already been averaged.  Doing so can yield some bizarre behavior that depends on the order in which vertices are traversed (if you're interested in learning more about this issue, Google around for the terms "Jacobi iterations" and "Gauss-Seidel).  So, your code should (i) first compute the centroid for all vertices, and (ii) then update the vertices with new positions.</p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/LaplacianSmoothing.png" alt="LaplacianSmoothing"></p>
+
+<p>How exactly should the positions be updated?  One idea is to simply replace each vertex position with its centroid.  We can make the algorithm slightly more stable by moving <em>gently</em> toward the centroid, rather than immediately snapping the vertex to the center.  For instance, if <strong>p</strong> is the original vertex position and <strong>c</strong> is the centroid, we might compute the new vertex position as</p>
+
+<p><strong>q</strong> = <strong>p</strong> + w(<strong>c</strong>-<strong>p</strong>)</p>
+
+<p>where w is some weighting factor between 0 and 1 (we use 1/5 in the examples below).  In other words, we start out at <strong>p</strong> and move a little bit in the update direction <strong>v</strong> = <strong>c</strong>-<strong>p</strong>.</p>
+
+<p>Another important issue here is that if our update direction <strong>v</strong> has a large <em>normal</em> component, then we'll end up pushing the surface in or out, rather than just sliding our sample points around on the surface.  As a result, the shape of the surface will change much more than we'd like (try it!).  To ameliorate this issue, we will move the vertex only in the <em>tangent</em> direction, which we can do by projecting out the normal component, i.e., by replacing <strong>v</strong> with <strong>v</strong> - (<strong>N</strong>•<strong>v</strong>)<strong>N</strong>, where <strong>N</strong> is the unit normal at the vertex.  To get this normal, you will implement the method <code>Vertex::normal()</code>, which computes the vertex normal as the area-weighted average of the incident triangle normals.  In other words, at a vertex i the normal points in the direction</p>
+
+<p>(sum over triangles ijk touching vertex i) A_ijk N_ijk</p>
+
+<p>where A_ijk is the area of triangle ijk, and N_ijk is its unit normal; this quantity can be computed directly by just taking the cross product of two of the triangle's edge vectors (properly oriented).</p>
+
+<h5>
+<a id="implementation-2" class="anchor" href="#implementation-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementation</h5>
+
+<p>There's very little more to know beyond the description above; this time you should use the following basic recipe:</p>
+
+<ol>
+<li>Compute the mean edge length L of the input.</li>
+<li>Split all edges that are longer than 4L/3.</li>
+<li>Collapse all edges that are shorter than 4L/5.</li>
+<li>Flip all edges that decrease the total deviation from degree 6.</li>
+<li>Compute the centroids for all the vertices.</li>
+<li>Move each vertex in the tangetn direction toward its centroid.</li>
+</ol>
+
+<p>Repeating this procedure about 5 or 6 times should yield results like the ones seen below; you may want to repeat the smoothing step 10-20 times for each "outer" iteration.</p>
+
+<p>What do you think about this algorithm?  Does it improve the triangle quality?  What about the quality of the geometric approximation?  In what situations might this kind of resampling be useful?  How might it be improved?</p>
+
+<p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/IsotropicExamples.png" alt="IsotropicExamples"></p>
+
+<p><strong>Possible Extra Credit Extensions:</strong></p>
+
+<ul>
+<li>As hinted at in the question above, this algorithm doesn't deal too well with geometry that has sharp features and large curvatures.  A <a href="http://graphics.uni-bielefeld.de/publications/disclaimer.php?dlurl=eg13-remeshing.pdf">later method by the same author</a> explored adaptation to curvature.  Extend your implementation as described in this paper (or based on your own variation of the method).</li>
+</ul>
+
+<h4>
+<a id="putting-it-all-together" class="anchor" href="#putting-it-all-together" aria-hidden="true"><span class="octicon octicon-link"></span></a>Putting it all together</h4>
+
+<p>Now that you're done with the final operations, do all of your operations work together (upsampling/downsampling/resampling)?  What happens if you, say, repeatedly upsample, then downsample, then upsample, then downsample, ...  Can you think of other ways of combining or augmenting these meshing operations to get higher-quality resamplings?  For instance, how about putting more samples in regions of high curvature?  Or placing samples exactly along sharp features, like the corner of a cube?  (Nothing needs to be done here---these are just questions to think about!)</p>
+
+<p>As a sanity check, each of your resampling algorithms should run almost immediately (no more than a second or two) on the smaller meshes, and it should be possible to complete remeshing on the larger meshes (albeit more slowly!).  If performance is significantly worse than this, you may be iterating over more elements than you really need to, or are mismanaging memory.</p>
+
+<h4>
+<a id="task-7-creative-image" class="anchor" href="#task-7-creative-image" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 7: Creative Image</h4>
+
+<p>Using the tool you have just implemented, generate the most interesting/fun/creative model you can by combining upsampling, downsampling, and resampling, with the vertex-drag tool.  (If you have implemented additional features, you can use these as well.)  We'll show off the best results in class later this semester.</p>
 
 <h3>
 <a id="grading" class="anchor" href="#grading" aria-hidden="true"><span class="octicon octicon-link"></span></a>Grading</h3>
 
 <p>Your code must run on the GHC 5xxxx cluster machines as we will grade on those machines. Do not wait until the submission deadline to test your code on the cluster machines. Keep in mind that there is no perfect way to run on arbitrary platforms. If you experience trouble building on your computer, while the staff may be able to help, but the GHC 5xxx machines will always work and we recommend you work on them.</p>
 
-<p>Each task will be graded on the basis of correctness.  You are not expected to completely reproduce the reference solution vertex-for-vertex as slight differences in implementation strategy or even the order of floating point arithmetic will causes differences, but your solution should not be very far off from the provided input/output pairs.  If you have any questions about whether your implementation is "sufficiently correct", just ask.</p>
+<p>Each task will be graded on the basis of correctness, except for Task 7 which will be graded (gently) on effort.  You are not expected to completely reproduce the reference solution vertex-for-vertex as slight differences in implementation strategy or even the order of floating point arithmetic will causes differences, but your solution should not be very far off from the provided input/output pairs.  If you have any questions about whether your implementation is "sufficiently correct", just ask.</p>
 
 <p>The assignment consists of a total of 100 pts. The point breakdown is as follows:</p>
 
 <ul>
-<li>Task 1:  15</li>
-<li>Task 2:  15 </li>
-<li>Task 3:  15</li>
-<li>Task 4:  18</li>
-<li>Task 5:  18</li>
-<li>Task 6:  19</li>
+<li>Task 1:  14</li>
+<li>Task 2:  14 </li>
+<li>Task 3:  14</li>
+<li>Task 4:  17</li>
+<li>Task 5:  17</li>
+<li>Task 6:  17</li>
+<li>Task 7:  7</li>
 </ul>
 
 <h3>
