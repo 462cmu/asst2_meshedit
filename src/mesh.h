@@ -26,7 +26,7 @@ struct Polymesh : Instance {
   std::vector<Vector3D> normals;    ///< polygon normal array
   std::vector<Vector2D> texcoords;  ///< texture coordinate array
 
-  std::vector<Polygon>  polygons;   ///< polygons
+  PolyList  polygons;   ///< polygons
 
   Material* material;  ///< material of the mesh
 

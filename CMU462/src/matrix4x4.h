@@ -93,6 +93,9 @@ class Matrix4x4 {
 
   // returns -A
   Matrix4x4 operator-( void ) const;
+  
+  // returns A-B
+  Matrix4x4 operator+( const Matrix4x4& B ) const;
 
   // returns A-B
   Matrix4x4 operator-( const Matrix4x4& B ) const;

@@ -212,21 +212,21 @@ namespace CMU462 {
 
          // reset view transformation
          case ' ':
-		   reset_camera();
-		   break;
+            reset_camera();
+            break;
 
-	     case 'u':
-	     case 'U':
+         case 'u':
+         case 'U':
             mesh_up_sample();
-			break;
+            break;
 
          case 'd':
          case 'D':
             mesh_down_sample();
-			break;
+            break;
 
          case 'r':
-	     case 'R':
+         case 'R':
             mesh_resample();
             break;
          case 'i':
@@ -921,13 +921,20 @@ namespace CMU462 {
    // -- Geometric Operations
    void MeshEdit::mesh_up_sample()
    {
-      // Don't act if there is no mesh selected.
-      if( !selectedFeature.isValid() )
+      HalfedgeMesh* mesh;
+
+      // If an element is selected, resample the mesh containing that
+      // element; otherwise, resample the first mesh in the scene.
+      if( selectedFeature.isValid() )
       {
-         return;
+         mesh = &( selectedFeature.node->mesh );
+      }
+      else
+      {
+         mesh = &( meshNodes.begin()->mesh );
       }
 
-      resampler.mesh_up_sample( selectedFeature.node->mesh );
+      resampler.upsample( *mesh );
 
       // Since the mesh may have changed, the selected and
       // hovered features may no longer point to valid elements.
@@ -937,13 +944,20 @@ namespace CMU462 {
 
    void MeshEdit::mesh_down_sample()
    {
-      // Don't act if there is no mesh selected.
-      if( !selectedFeature.isValid() )
+      HalfedgeMesh* mesh;
+
+      // If an element is selected, resample the mesh containing that
+      // element; otherwise, resample the first mesh in the scene.
+      if( selectedFeature.isValid() )
       {
-         return;
+         mesh = &( selectedFeature.node->mesh );
+      }
+      else
+      {
+         mesh = &( meshNodes.begin()->mesh );
       }
 
-      resampler.mesh_down_sample( selectedFeature.node->mesh );
+      resampler.downsample( *mesh );
 
       // Since the mesh may have changed, the selected and
       // hovered features may no longer point to valid elements.
@@ -953,13 +967,20 @@ namespace CMU462 {
 
    void MeshEdit::mesh_resample()
    {
-      // Don't act if there is no mesh selected.
-      if( !selectedFeature.isValid() )
+      HalfedgeMesh* mesh;
+
+      // If an element is selected, resample the mesh containing that
+      // element; otherwise, resample the first mesh in the scene.
+      if( selectedFeature.isValid() )
       {
-         return;
+         mesh = &( selectedFeature.node->mesh );
+      }
+      else
+      {
+         mesh = &( meshNodes.begin()->mesh );
       }
 
-      resampler.mesh_resample( selectedFeature.node->mesh );
+      resampler.resample( *mesh );
 
       // Since the mesh may have changed, the selected and
       // hovered features may no longer point to valid elements.

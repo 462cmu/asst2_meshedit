@@ -3,27 +3,21 @@
 
 #include "halfEdgeMesh.h"
 
-
 using namespace std;
 
 namespace CMU462 {
 
-  class MeshResampler{
+   class MeshResampler{
 
-  public:
+      public:
 
-	MeshResampler(){};
-	~MeshResampler(){}
+         MeshResampler(){};
+         ~MeshResampler(){}
 
-	void mesh_up_sample  (HalfedgeMesh & half_edge_structure);
-	void mesh_down_sample(HalfedgeMesh & half_edge_structure);
-	void mesh_resample   (HalfedgeMesh & half_edge_structure);
-
-	// One could add functions for other structures, such as winged edge.
-
-  };
-
-
+         void upsample  ( HalfedgeMesh& mesh );
+         void downsample( HalfedgeMesh& mesh );
+         void resample  ( HalfedgeMesh& mesh );
+   };
 }
 
 #endif // STUDENT_CODE_H

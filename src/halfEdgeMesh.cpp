@@ -32,34 +32,6 @@ namespace CMU462 {
      return N.unit();
   }
 
-  // Computes the area vector for the one neighborhood of a vertex.
-  // This will be used to compute the vertex normal.
-  Vector3D Vertex::get_one_neighborhood_area()
-  {
-
-	//	(1/2) sum_{i=1}^n p_i x p_{i+1},
-
-	Vector3D output = Vector3D(0,0,0);
-
-
-	// We act on the twin's to find the one_neighborhood vertices.
-	HalfedgeIter e0 = this -> halfedge() -> twin();
-	HalfedgeIter ei = e0;
-	Vector3D * p_1 = &(e0->vertex() -> position);
-	do
-	{
-	  Vector3D & p_2 = ei->vertex() -> position;
-	  output += cross(*p_1, p_2);
-
-	  // -- Iterate to the next incoming edge.
-	  p_1 = &p_2;
-	  ei = ei->next()->twin();
-	}while(e0 != ei);
-
-	return output/2;
-
-  }
-
    void HalfedgeMesh :: build( const vector< vector<Index> >& polygons,
                                const vector<Vector3D>& vertexPositions )
    // This method initializes the halfedge data structure from a raw list of polygons,

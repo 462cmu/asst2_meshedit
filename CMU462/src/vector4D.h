@@ -153,7 +153,7 @@ inline Vector4D operator* ( const double& c, const Vector4D& v ) {
 
 // dot product (a.k.a. inner or scalar product)
 inline double dot( const Vector4D& u, const Vector4D& v ) {
-  return u.x*v.x + u.y*v.y + u.z*v.z + u.w*v.w;;
+  return u.x*v.x + u.y*v.y + u.z*v.z + u.w*v.w;
 }
 
 // prints components

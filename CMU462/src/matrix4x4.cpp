@@ -77,7 +77,7 @@ namespace CMU462 {
     double* Aij = (double*) &A;
     const double* Bij = (const double*) &B;
 
-	// Add the 16 contigous vector packed double values.
+    // Add the 16 contigous vector packed double values.
     *Aij++ += *Bij++;//0
     *Aij++ += *Bij++;
     *Aij++ += *Bij++;
@@ -97,6 +97,20 @@ namespace CMU462 {
 	//16.
 
   }
+
+  Matrix4x4 Matrix4x4::operator+( const Matrix4x4& B ) const {
+    const Matrix4x4& A( *this );
+    Matrix4x4 C;
+
+    for( int i = 0; i < 4; i++ )
+    for( int j = 0; j < 4; j++ )
+    {
+       C(i,j) = A(i,j) + B(i,j);
+    }
+
+    return C;
+  }
+
 
   Matrix4x4 Matrix4x4::operator-( const Matrix4x4& B ) const {
     const Matrix4x4& A( *this );

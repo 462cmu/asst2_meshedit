@@ -42,8 +42,6 @@ set(CMU462_HEADER
 #-------------------------------------------------------------------------------
 add_library(CMU462 STATIC ${CMU462_SOURCE} ${CMU462_HEADER})
 
-set_target_properties(CMU462 PROPERTIES LINK_SEARCH_START_STATIC 1)
-set_target_properties(CMU462 PROPERTIES LINK_SEARCH_END_STATIC   1)
 target_link_libraries(
   CMU462
   ${GLEW_LIBRARIES}
