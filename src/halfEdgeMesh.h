@@ -438,29 +438,8 @@ namespace CMU462
 
          Vector3D centroid; ///< average of neighbor positions, storing the value computed by Vertex::computeCentroid()
 
-         Vector3D normal( void ) const
-         // Returns an approximate unit normal at this vertex, computed by
-         // taking the area-weighted average of the normals of neighboring
-         // triangles, then normalizing.
-         {
-            Vector3D pi = position;
-            Vector3D N( 0., 0., 0. );
-
-            HalfedgeCIter h = halfedge();
-            do
-            {
-               Vector3D pj = h->next()->vertex()->position;
-               Vector3D pk = h->next()->next()->vertex()->position;
-
-               N += cross( pk-pi, pj-pi );
-
-               h = h->twin()->next();
-            }
-            while( h != halfedge() );
-
-            return N.unit();
-         }
-
+         Vector3D normal( void ) const;
+				 
          /**
           * Check if if this vertex is on the boundary of the surface
           * \return true if and only if this vertex is on the boundary
