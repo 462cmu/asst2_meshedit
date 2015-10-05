@@ -523,7 +523,7 @@ while(e != mesh.edgesEnd())
 <ul>
 <li>
 <code>Vertex::newPosition</code> can be used as temporary storage for the new position (computed via the weighted average above).  Note that you should <em>not</em> change the value of <code>Vertex::position</code> until <em>all</em> the new vertex positions have been computed---otherwise, you are taking averages of values that have already been averaged!</li>
-<li>Likewise, <code>Edge::newPosition</code> can be used to store the position of the vertices that will ultimately be inserted at edge midpoints.  Again, these values should be computed from the original values (before subdivision), and applied to the new vertices only at the very end.</li>
+<li>Likewise, <code>Edge::newPosition</code> can be used to store the position of the vertices that will ultimately be inserted at edge midpoints.  Again, these values should be computed from the original values (before subdivision), and applied to the new vertices only at the very end. The <code>Edge::newPosition</code>value will be used for the position of the vertex that will appear along the old edge after the edge is split. We precompute the position of the new vertex before splitting the edges and allocating the new vertices because it is easier to tansverse the simpler original mesh to find the positions for the weighted average that determines the positions of the new vertices.</li>
 <li>
 <code>Vertex::isNew</code> can be used to flag whether a vertex was part of the original mesh, or is a vertex newly inserted by subdivision (at an edge midpoint).</li>
 <li>
