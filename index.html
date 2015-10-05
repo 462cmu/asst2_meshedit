@@ -469,6 +469,8 @@ Halfedge::isBoundary()
 
 <p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/LoopWeights.png" alt="LoopWeights"></p>
 
+<p>In words, the new position of an old vertice is (1 - nu) + u times the sum of the positions of all of its neighbors. The new position for a newly created vertex v that splits Edge AB and is flanked by opposite vertices C and D across the two faces connected to AB in the original mesh will be 3/8 * (A + B) + 1/8 * (C + D).</p>
+
 <p>If we repeatedly apply these two steps, we will converge to a fairly smooth approximation of our original mesh.  In this task you will implement Loop subdivision using the atomic edge operations you implemented in Tasks 1-3.  In particular, you can achieve a 4-1 subdivision by applying the following strategy:</p>
 
 <ol>
