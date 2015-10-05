@@ -473,7 +473,7 @@ Halfedge::isBoundary()
 
 <ol>
 <li>Split every edge of the mesh <em>in any order whatsoever</em>.</li>
-<li>Flip any new edge that touches a new vertex and an old vertex.</li>
+<li>Flip any new edge that touches a new vertex and an old vertex. <em>Note</em>: Every original edge will now be represented by 2 edges, you <em>should not</em> flip these edges, because they are always already along the boundary of the 4 way divided triangles. In the diagrams below, you should only flip the blue edges that connect an old and new vertex, but you should not flip any of the black new edges.</li>
 </ol>
 
 <p>The following pictures (courtesy Denis Zorin) illustrate this idea:</p>
@@ -728,13 +728,15 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 
 <ol>
 <li>Get the cheapest edge from the queue.</li>
+<li><strong>Remove the cheapest edge from the queue by calling <code>pop()</code>.</strong></li>
 <li>Compute the new quadric by summing the quadrics at its two endpoints.</li>
 <li><strong>Remove any edge touching either of its endpoints from the queue.</strong></li>
 <li>Collapse the edge.</li>
 <li>Set the quadric of the new vertex to the quadric computed in Step 2.</li>
 <li><strong>Insert any edge touching the new vertex into the queue, creating new edge records for each of them.</strong></li>
-<li>Remove the cheapest edge from the queue by calling <code>pop()</code>.</li>
 </ol>
+
+<p><em>Note:</em> Step 7 prime is highlighted, because these instruction used to erroneously recommend that the pop be done at the end. The pop of the cheapest edge needs to occur before any modifications are made to the queue, because otherwise the edge you are processing might not be the cheapest edge at the end of the 7 step process.</p>
 
 <p>Steps 3 and 6 are highlighted because it is easy to get these steps wrong.  For instance, if you collapse the edge first, you may no longer be able to access the edges that need to be removed from the queue.</p>
 
