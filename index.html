@@ -869,7 +869,35 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 <h3>
 <a id="handin-instructions" class="anchor" href="#handin-instructions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Handin Instructions</h3>
 
-<p>TBD</p>
+<p>Your handin directory is on AFS under:</p>
+
+<pre><code>/afs/cs/academic/class/15462-f15-users/ANDREWID/asst1/
+</code></pre>
+
+<p>Note that you may need to create the <code>asst1</code> directory yourself. All your files should be placed there. Please make sure you have a directory and are able to write to it well before the deadline; we are not responsible if you wait until 10 minutes before the deadline and run into trouble. Also, you may need to run <code>aklog cs.cmu.edu</code> after you login in order to read from/write to your submission directory.</p>
+
+<p>You should submit all files needed to build your project, this include:</p>
+
+<ul>
+<li>The <code>src</code> folder with all your source files</li>
+</ul>
+
+<p>Please do not include:</p>
+
+<ul>
+<li>The<code>build</code> folder</li>
+<li>Executables</li>
+<li>Any additional binary or intermediate files generated in the build process.</li>
+</ul>
+
+<p>You should include a <code>README</code> file (plaintext or pdf) if you have implemented any of the extra credit features. In your <code>REAME</code> file, clearly indicate which extra credit features you have implemented. You should also briefly state anything that you think the grader should be aware of.</p>
+
+<p>Do not add levels of indirection when submitting. And please use the same arrangement as the handout. We will enter your handin directory, and run:</p>
+
+<pre><code>mkdir build &amp;&amp; cd build &amp;&amp; cmake .. &amp;&amp; make
+</code></pre>
+
+<p>and your code should build correctly. The code must compile and run on the GHC 5xxx cluster machines. Be sure to check to make sure you submit all files and that your code builds correctly.</p>
 
 <h3>
 <a id="friendly-advice-from-your-tas" class="anchor" href="#friendly-advice-from-your-tas" aria-hidden="true"><span class="octicon octicon-link"></span></a>Friendly Advice from your TAs</h3>
