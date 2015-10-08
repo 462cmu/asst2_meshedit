@@ -749,9 +749,9 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 <li><strong>Insert any edge touching the new vertex into the queue, creating new edge records for each of them.</strong></li>
 </ol>
 
-<p><em>Note:</em> Step 7 prime is highlighted, because these instruction used to erroneously recommend that the pop be done at the end. The pop of the cheapest edge needs to occur before any modifications are made to the queue, because otherwise the edge you are processing might not be the cheapest edge at the end of the 7 step process.</p>
+<p><em>Note:</em> Step 2 is highlighted, because these instruction used to erroneously recommend that the pop be done at the end. The pop of the cheapest edge needs to occur before any modifications are made to the queue, because otherwise the edge you are processing might not be the cheapest edge at the end of the 7 step process.</p>
 
-<p>Steps 3 and 6 are highlighted because it is easy to get these steps wrong.  For instance, if you collapse the edge first, you may no longer be able to access the edges that need to be removed from the queue.</p>
+<p>Steps 4 and 7 are highlighted because it is easy to get these steps wrong.  For instance, if you collapse the edge first, you may no longer be able to access the edges that need to be removed from the queue.</p>
 
 <p>A working implementation should look something like the examples below.  You may find it easiest to implement this algorithm in stages.  For instance, <em>first</em> get the edge collapses working, using just the edge midpoint rather than the optimal point, <em>then</em> worry about solving for the point that minimizes quadric error.</p>
 
