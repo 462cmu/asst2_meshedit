@@ -22,12 +22,12 @@
       <p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/CMU462Assignment2TeaserGeometryProcessing.png" alt="Resampled mesh"></p>
 
 <h3>
-<a id="due-date" class="anchor" href="#due-date" aria-hidden="true"><span class="octicon octicon-link"></span></a>Due Date</h3>
+<a id="due-date" class="anchor" href="#due-date" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Due Date</h3>
 
-<p>Wed Oct 7th, 11:59pm</p>
+<p>Mon Mar 14th, 11:59pm</p>
 
 <h3>
-<a id="additional-notes" class="anchor" href="#additional-notes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Additional Notes</h3>
+<a id="additional-notes" class="anchor" href="#additional-notes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Additional Notes</h3>
 
 <p>In addition to the writeup below, these supplemental notes may be useful in guiding your implementation.  (Note that you do <strong>not</strong> have to handle surfaces with boundary, unless you are shooting for extra credit!)</p>
 
@@ -38,12 +38,12 @@
 </ul>
 
 <h3>
-<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span class="octicon octicon-link"></span></a>Overview</h3>
+<a id="overview" class="anchor" href="#overview" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Overview</h3>
 
 <p>In this project you will implement a simple mesh editor that allows you to manipulate and resample triangle meshes.  When you are done, you will have a tool that allows you to load and edit basic COLLADA mesh files that are now used by many major modeling packages and real time graphics engines.  (You can create your own COLLADA files in free software like <a href="http://blender.org">Blender</a>.)</p>
 
 <h3>
-<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting started</h3>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting started</h3>
 
 <p>We will be distributing assignments with git. You can find the repository for this assignment at <a href="http://462cmu.github.io/asst2_meshedit/">http://462cmu.github.io/asst2_meshedit/</a>. If you are unfamiliar with git, here is what you need to do to get the starter code:</p>
 
@@ -53,7 +53,7 @@
 <p>This will create a <i> </i> <em>asst2_meshedit</em> folder with all the source files. </p>
 
 <h3>
-<a id="build-instructions" class="anchor" href="#build-instructions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build Instructions</h3>
+<a id="build-instructions" class="anchor" href="#build-instructions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Build Instructions</h3>
 
 <p>In order to ease the process of running on different platforms, we will be using <a href="http://www.cmake.org" title="CMake Homepage">CMake</a> for our assignments. You will need a CMake installation of version 2.8+ to build the code for this assignment. The GHC 5xxx cluster machines have all the packages required to build the project. It should also be relatively easy to build the assignment and work locally on your OSX or Linux. Building on Windows is currently not supported. </p>
 
@@ -98,7 +98,7 @@
 </code></pre>
 
 <h3>
-<a id="using-the-meshedit-app" class="anchor" href="#using-the-meshedit-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using the MeshEdit App</h3>
+<a id="using-the-meshedit-app" class="anchor" href="#using-the-meshedit-app" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Using the MeshEdit App</h3>
 
 <p>When you have successfully built your code, you will get an executable named <strong>meshedit</strong>. The <strong>meshedit</strong> executable takes exactly one argument from the command line. You may load a single COLLADA file by specifying its path. For example, to load the example file <i> </i><em>dae/quadball.dae</em> from your build directory:</p>
 
@@ -130,7 +130,7 @@
 <p>Note that each COLLADA file may contain multiple mesh objects; more generally, a COLLADA file describes a <strong>scene graph</strong> (much like SVG) that is a hierarchical representation of all objects in the scene (meshes, cameras, lights, etc.), as well as their coordinate transformations.  Global resampling methods will be run on whichever mesh is currently selected.</p>
 
 <h3>
-<a id="summary-of-viewer-controls" class="anchor" href="#summary-of-viewer-controls" aria-hidden="true"><span class="octicon octicon-link"></span></a>Summary of Viewer Controls</h3>
+<a id="summary-of-viewer-controls" class="anchor" href="#summary-of-viewer-controls" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Summary of Viewer Controls</h3>
 
 <p>A table of all the keyboard controls in the <strong>meshedit</strong> application is provided below.</p>
 
@@ -194,21 +194,21 @@
 </table>
 
 <h3>
-<a id="what-you-need-to-do" class="anchor" href="#what-you-need-to-do" aria-hidden="true"><span class="octicon octicon-link"></span></a>What You Need to Do</h3>
+<a id="what-you-need-to-do" class="anchor" href="#what-you-need-to-do" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What You Need to Do</h3>
 
-<p>The assignment is divided into two major components: local operations (week 1) and global operations (week 2); the latter will build on the former (e.g., local edge collapses will ultimately be used for global downsampling).  As with the previous assignment, this assignment <strong>involves significant implementation effort. Also, be advised that to meet the requirements of later tasks, you should be sure that your local operations handle corner cases; it won't be enough to work only on simple examples!</strong>  In short: you are highly advised to compete the first component in the first week of the assignment, and to carefully consider the <strong>correctness</strong> of your code, since it will be used later for more complicated tasks.</p>
+<p>The assignment is divided into two major components: local operations and global operations; the latter will build on the former (e.g., local edge collapses will ultimately be used for global downsampling).  As with the previous assignment, this assignment <strong>involves significant implementation effort. Also, be advised that to meet the requirements of later tasks, you should be sure that your local operations handle corner cases; it won't be enough to work only on simple examples!</strong>  In short: you are highly advised to complete the first component before the midterm, and carefully consider the <strong>correctness</strong> of your code, since it will be used later for more complicated tasks. Specifically, you should handle corner cases properly in all your edge operations to maintain the manifoldness of the mesh because global operations will depend on the correctness of your local operations.</p>
 
-<p><strong>NOTE: The second component (global remeshing) depends on concepts that will be discussed in Lectures 7 and 8, so it is not expected that you understand those requirements at the time this assignment is released.</strong> </p>
+<p><strong>NOTE: The second component (global remeshing) depends on concepts that will be discussed in lectures on geometry processing, so it is not expected that you understand those requirements at the time this assignment is released.</strong> </p>
 
 <h4>
-<a id="getting-acquainted-with-the-starter-code" class="anchor" href="#getting-acquainted-with-the-starter-code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Acquainted with the Starter Code</h4>
+<a id="getting-acquainted-with-the-starter-code" class="anchor" href="#getting-acquainted-with-the-starter-code" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting Acquainted with the Starter Code</h4>
 
 <p>Before you start, here are some basic information on the structure of the starter code.</p>
 
 <p>Your work will be constrained to implementing part of the classes <code>HalfedgeMesh</code> and <code>MeshResampler</code> in <i> </i> <em>student_code.cpp</em>.  Although the halfedge data structure is designed to support general polygon meshes, you can assume that all meshes used in this assignment will be made of <strong>triangles only</strong>.  You can also assume that the input mesh is <strong>manifold, possibly with boundary</strong>, i.e., that each edge is contained in at most two polygons (or one polygon if it is on the boundary), and each vertex is connected to a single "fan" of triangles.  Note that the atomic remeshing operations (split, collapse, and flip) are <strong>supposed</strong> to preserve the manifold property of the mesh---but it is only your own implementation that can provide this guarantee!  In other words, if you make a mistake in one of the local remeshing operations, it can cause trouble for other routines later down the line (probably causing your program to crash!).</p>
 
 <h4>
-<a id="the-halfedge-data-structure" class="anchor" href="#the-halfedge-data-structure" aria-hidden="true"><span class="octicon octicon-link"></span></a>The Halfedge Data Structure</h4>
+<a id="the-halfedge-data-structure" class="anchor" href="#the-halfedge-data-structure" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Halfedge Data Structure</h4>
 
 <p>For simple mesh operations (e.g., loading a mesh from disk and drawing it on screen), one can use a very simple mesh data structure like <strong>polygon soup</strong>, i.e., just a list of vertices together with a list of polygons connecting them.  For many geometry processing tasks, however, this simple representation is no longer sufficient (or leads to unnecessarily bad asymptotic performance).  In this assignment, we use the <strong>halfedge</strong> data structure, which provides a good tradeoff between simplicity and sophistication.</p>
 
@@ -258,7 +258,7 @@
 <p>An interesting consequence of the halfedge representation is that any valid halfedge mesh <strong>must</strong> be manifold and orientable.  In this assignment, we will therefore only provide manifold, oriented meshes as input (in fact, the parser will complain if the input does not satisfy these criteria).</p>
 
 <h4>
-<a id="the-halfedgemesh-class" class="anchor" href="#the-halfedgemesh-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>The HalfedgeMesh Class</h4>
+<a id="the-halfedgemesh-class" class="anchor" href="#the-halfedgemesh-class" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The HalfedgeMesh Class</h4>
 
 <p>For this assignment, we've already provided a C++ implementation of the halfedge data structure.  Although the detailed implementation might appear a bit intimidating at first (especially if you haven't had much experience with C++), the basic interface you'll need for this assignment is not much different from the abstract description given above.  For instance, suppose we have a face f and want to print out the positions of all its vertices.  We would write a routine like this:</p>
 
@@ -342,7 +342,7 @@ Halfedge::isBoundary()
 <p>Please refer to the inline comments (or the Doxygen documentation) for further details.</p>
 
 <h4>
-<a id="task-1--edge-flip" class="anchor" href="#task-1--edge-flip" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 1 : Edge Flip</h4>
+<a id="task-1--edge-flip" class="anchor" href="#task-1--edge-flip" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Task 1 : Edge Flip</h4>
 
 <p>In this task you will implement a local remeshing operation that "flips" an edge, by implementing the method <code>HalfedgeMesh::flipEdge</code> in <i> </i><em>student_code.cpp</em>.  In particular, suppose we have a pair of triangles (a,b,c) and (c,b,d).  After flipping the edge (b,c), we should now have triangles (a,d,c) and (a,b,d):</p>
 
@@ -377,7 +377,7 @@ Halfedge::isBoundary()
 </ul>
 
 <h4>
-<a id="task-2-edge-split" class="anchor" href="#task-2-edge-split" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 2: Edge Split</h4>
+<a id="task-2-edge-split" class="anchor" href="#task-2-edge-split" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Task 2: Edge Split</h4>
 
 <p>In this task you will make a different local modification to the mesh in the neighborhood of an edge, called a <strong>split</strong>.  In particular, suppose we have a pair of triangles (a,b,c) and (c,b,d).  The edge (b,c) is split by inserting a new vertex m at its midpoint and connecting it to the opposite vertices a and d, yielding four triangles:</p>
 
@@ -404,7 +404,7 @@ Halfedge::isBoundary()
 </ul>
 
 <h4>
-<a id="task-3-edge-collapse" class="anchor" href="#task-3-edge-collapse" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 3: Edge Collapse</h4>
+<a id="task-3-edge-collapse" class="anchor" href="#task-3-edge-collapse" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Task 3: Edge Collapse</h4>
 
 <p>The third and final operation you will implement is an <strong>edge collapse</strong>, which contracts an edge to a single point.  In particular, suppose we have a pair of triangles (a,b,c) and (c,b,d).  The edge (b,c) is collapsed by replacing both vertices b and c with a single vertex m, and replacing triangles (a,b,c) and (c,b,d) with edges (a,m) and (m,d), respectively:</p>
 
@@ -435,15 +435,15 @@ Halfedge::isBoundary()
 </ul>
 
 <h4>
-<a id="going-further-tasks-that-may-potentially-win-you-extra-credit" class="anchor" href="#going-further-tasks-that-may-potentially-win-you-extra-credit" aria-hidden="true"><span class="octicon octicon-link"></span></a>Going Further: Tasks that May Potentially Win You Extra Credit:</h4>
+<a id="going-further-tasks-that-may-potentially-win-you-extra-credit" class="anchor" href="#going-further-tasks-that-may-potentially-win-you-extra-credit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Going Further: Tasks that May Potentially Win You Extra Credit:</h4>
 
 <h5>
-<a id="implement-more-advanced-modeling-tools" class="anchor" href="#implement-more-advanced-modeling-tools" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implement More Advanced Modeling Tools</h5>
+<a id="implement-more-advanced-modeling-tools" class="anchor" href="#implement-more-advanced-modeling-tools" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Implement More Advanced Modeling Tools</h5>
 
 <p>Many popular modeling tools are based on the same kinds of local remeshing operations you've been implementing for this assignment.  For instance, a very common operation is to "bevel" or "fillet" an edge, to make sharp corners round.  Alternatively, faces can be extruded to add more detail to an existing surface.  Our basic editor could be turned into a more full-fledged modeling tool by implementing common operations found in packages like <strong>Maya</strong> or <strong>Blender</strong>---or inventing your own!  (An additional challenge here is that you may have to add some additional functionality to the GUI (graphical user interface), by modifying methods in <code>MeshEditor.cpp</code>, in order to give users an interface to your new editing tools.)</p>
 
 <h3>
-<a id="global-surface-remeshing" class="anchor" href="#global-surface-remeshing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Global Surface Remeshing</h3>
+<a id="global-surface-remeshing" class="anchor" href="#global-surface-remeshing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Global Surface Remeshing</h3>
 
 <p>The three local remeshing operations <strong>split</strong>, <strong>collapse</strong>, and <strong>flip</strong> are effectively small steps toward upsampling, downsampling, and resampling the surface.  In the second half of the assignment, you will combine these operations in various ways to perform a global remeshing of the surface.  You can complete the following tasks in any order; they do not depend on each-other.</p>
 
@@ -459,7 +459,7 @@ Halfedge::isBoundary()
 </ul>
 
 <h4>
-<a id="task-4-upsampling-via-loop-subdivision" class="anchor" href="#task-4-upsampling-via-loop-subdivision" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 4: Upsampling via Loop Subdivision</h4>
+<a id="task-4-upsampling-via-loop-subdivision" class="anchor" href="#task-4-upsampling-via-loop-subdivision" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Task 4: Upsampling via Loop Subdivision</h4>
 
 <p>In image processing, we often have a low resolution image that we want to display at a higher resolution.  Since we only have a few samples of the original signal, we need to somehow interpolate or <em>upsample</em> the image.  One idea would be to simply cut each pixel into four, leaving the color values unchanged, but this leads to a blocky appearance.  Instead we might try a more sophisticated scheme (like bilinear or trilinear interpolation) that yields a smoother appearance.</p>
 
@@ -494,7 +494,7 @@ Halfedge::isBoundary()
 <p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/FlippingSubdivision.png" alt="FlippingSubdivision"></p>
 
 <h5>
-<a id="implementation" class="anchor" href="#implementation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementation</h5>
+<a id="implementation" class="anchor" href="#implementation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Implementation</h5>
 
 <p>When dealing with a dynamic data structure like a halfedge mesh, one must think <strong>very carefully</strong> about the order in which mesh elements are processed---it is quite easy to delete an element at one point in the code, and try to access it later (usually resulting in a crash!).  For instance, suppose we write a loop like this:</p>
 
@@ -571,7 +571,7 @@ while(e != mesh.edgesEnd())
 </ul>
 
 <h4>
-<a id="task-5-downsampling-via-quadric-error-simplification" class="anchor" href="#task-5-downsampling-via-quadric-error-simplification" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 5: Downsampling via Quadric Error Simplification</h4>
+<a id="task-5-downsampling-via-quadric-error-simplification" class="anchor" href="#task-5-downsampling-via-quadric-error-simplification" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Task 5: Downsampling via Quadric Error Simplification</h4>
 
 <p><img src="http://15462.courses.cs.cmu.edu/fall2015content/misc/asst2_images/QEMSimplification.png" alt="QEMSimplification"></p>
 
@@ -708,7 +708,7 @@ queue.insert( e );
 <p>More documentation is provided in the header file <code>MutablePriorityQueue.h</code>.</p>
 
 <h5>
-<a id="implementation-1" class="anchor" href="#implementation-1" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementation</h5>
+<a id="implementation-1" class="anchor" href="#implementation-1" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Implementation</h5>
 
 <p>Downsampling via edge collapse is perhaps the most difficult of the three algorithms conceptually, but it is actually not too hard to implement.  In this task you will need to implement two methods:</p>
 
@@ -767,7 +767,7 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 </ul>
 
 <h4>
-<a id="task-6-resampling-via-isotropic-remeshing" class="anchor" href="#task-6-resampling-via-isotropic-remeshing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 6: Resampling via Isotropic Remeshing</h4>
+<a id="task-6-resampling-via-isotropic-remeshing" class="anchor" href="#task-6-resampling-via-isotropic-remeshing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Task 6: Resampling via Isotropic Remeshing</h4>
 
 <p>Another thing we might want to do with a mesh is keep the number of samples roughly the same, while improving the shape of individual triangles.  In this task, we will try to make the mesh as "uniform" as possible, i.e., triangles as close as possible to equilaterial triangles of equal size, and vertex degrees as close as possible to 6.  The algorithm you will implement is based on the paper <a href="http://graphics.uni-bielefeld.de/publications/disclaimer.php?dlurl=sgp04.pdf">Botsch and Kobbelt, "A Remeshing Approach to Multiresolution Modeling"</a> (Section 4), and can be summarized in just a few simple steps:</p>
 
@@ -781,17 +781,17 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 <p>Repeating this simple process several times typically produces a mesh with fairly uniform triangle areas, angles, and vertex degrees.  However, each of the steps deserves slightly more explanation.</p>
 
 <h5>
-<a id="edge-splitting--collapsing" class="anchor" href="#edge-splitting--collapsing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Edge Splitting / Collapsing</h5>
+<a id="edge-splitting--collapsing" class="anchor" href="#edge-splitting--collapsing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Edge Splitting / Collapsing</h5>
 
 <p>Ultimately we want all of our triangles to be about the same size, which means we want edges to all have roughly the same length.  As suggested in the paper by Botsch and Kobbelt, we will aim to keep our edges no longer than 4/3rds of the <strong>mean</strong> edge length L in the input mesh, and no shorter than 4/5ths of L.  In other words, if an edge is longer than 4L/3, split it; if it is shorter than 4L/5, collapse it.  We recommend performing all of the splits first, then doing all of the collapses (though as usual, you should be careful to think about when and how mesh elements are being allocated/deallocated).</p>
 
 <h5>
-<a id="edge-flipping" class="anchor" href="#edge-flipping" aria-hidden="true"><span class="octicon octicon-link"></span></a>Edge Flipping</h5>
+<a id="edge-flipping" class="anchor" href="#edge-flipping" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Edge Flipping</h5>
 
 <p>We want to flip an edge any time it reduces the total deviation from regular degree (degree 6).  In particular, let a1, a2 be the degrees of an edge that we're thinking about flipping, and let b1, b2 be the degrees of the two vertices across from this edge.  The total deviation in the initial configuration is |a1-6| + |a2-6| + |b1-6| + |b2-6|.  You should be able to <em>easily</em> compute the deviation after the edge flip <strong>without actually performing the edge flip</strong>; if this number decreases, then the edge flip should be performed.  We recommend flipping all edges in a single pass, after the edge collapse step.</p>
 
 <h5>
-<a id="vertex-averaging" class="anchor" href="#vertex-averaging" aria-hidden="true"><span class="octicon octicon-link"></span></a>Vertex Averaging</h5>
+<a id="vertex-averaging" class="anchor" href="#vertex-averaging" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Vertex Averaging</h5>
 
 <p>Finally, we also want to optimize the geometry of the vertices.  A very simple heuristic is that a mesh will have reasonably well-shaped elements if each vertex is located at the center of its neighbors.  To keep your code clean and simple, we ask that you implement the method <code>Vertex::computeCentroid()</code> which should compute the average position of the neighbors and store it in the member <code>Vertex::centroid</code>.  The reason this value must be stored in a temporary variable and not <em>immediately</em> used to replace the current position is similar to the reason we stored temporary vertex positions in our subdivision scheme: we don't want to be taking averages of vertices that have already been averaged.  Doing so can yield some bizarre behavior that depends on the order in which vertices are traversed (if you're interested in learning more about this issue, Google around for the terms "Jacobi iterations" and "Gauss-Seidel).  So, your code should (i) first compute the centroid for all vertices, and (ii) then update the vertices with new positions.</p>
 
@@ -810,7 +810,7 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 <p>where A_ijk is the area of triangle ijk, and N_ijk is its unit normal; this quantity can be computed directly by just taking the cross product of two of the triangle's edge vectors (properly oriented).</p>
 
 <h5>
-<a id="implementation-2" class="anchor" href="#implementation-2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Implementation</h5>
+<a id="implementation-2" class="anchor" href="#implementation-2" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Implementation</h5>
 
 <p>There's very little more to know beyond the description above; this time you should use the following basic recipe:</p>
 
@@ -836,19 +836,19 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 </ul>
 
 <h4>
-<a id="putting-it-all-together" class="anchor" href="#putting-it-all-together" aria-hidden="true"><span class="octicon octicon-link"></span></a>Putting it all together</h4>
+<a id="putting-it-all-together" class="anchor" href="#putting-it-all-together" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Putting it all together</h4>
 
 <p>Now that you're done with the final operations, do all of your operations work together (upsampling/downsampling/resampling)?  What happens if you, say, repeatedly upsample, then downsample, then upsample, then downsample, ...  Can you think of other ways of combining or augmenting these meshing operations to get higher-quality resamplings?  For instance, how about putting more samples in regions of high curvature?  Or placing samples exactly along sharp features, like the corner of a cube?  (Nothing needs to be done here---these are just questions to think about!)</p>
 
 <p>As a sanity check, each of your resampling algorithms should run almost immediately (no more than a second or two) on the smaller meshes, and it should be possible to complete remeshing on the larger meshes (albeit more slowly!).  If performance is significantly worse than this, you may be iterating over more elements than you really need to, or are mismanaging memory.</p>
 
 <h4>
-<a id="task-7-creative-image" class="anchor" href="#task-7-creative-image" aria-hidden="true"><span class="octicon octicon-link"></span></a>Task 7: Creative Image</h4>
+<a id="task-7-creative-image" class="anchor" href="#task-7-creative-image" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Task 7: Creative Image</h4>
 
 <p>Using the tool you have just implemented, generate the most interesting/fun/creative model you can by combining upsampling, downsampling, and resampling, with the vertex-drag tool.  (If you have implemented additional features, you can use these as well.)  We'll show off the best results in class later this semester.</p>
 
 <h3>
-<a id="grading" class="anchor" href="#grading" aria-hidden="true"><span class="octicon octicon-link"></span></a>Grading</h3>
+<a id="grading" class="anchor" href="#grading" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Grading</h3>
 
 <p>Your code must run on the GHC 5xxxx cluster machines as we will grade on those machines. Do not wait until the submission deadline to test your code on the cluster machines. Keep in mind that there is no perfect way to run on arbitrary platforms. If you experience trouble building on your computer, while the staff may be able to help, but the GHC 5xxx machines will always work and we recommend you work on them.</p>
 
@@ -867,7 +867,7 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 </ul>
 
 <h3>
-<a id="handin-instructions" class="anchor" href="#handin-instructions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Handin Instructions</h3>
+<a id="handin-instructions" class="anchor" href="#handin-instructions" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Handin Instructions</h3>
 
 <p>Your handin directory is on AFS under:</p>
 
@@ -900,17 +900,18 @@ MeshResampler::downsample( HalfedgeMesh&amp; mesh ); // downsampling via quadric
 <p>and your code should build correctly. The code must compile and run on the GHC 5xxx cluster machines. Be sure to check to make sure you submit all files and that your code builds correctly.</p>
 
 <h3>
-<a id="friendly-advice-from-your-tas" class="anchor" href="#friendly-advice-from-your-tas" aria-hidden="true"><span class="octicon octicon-link"></span></a>Friendly Advice from your TAs</h3>
+<a id="friendly-advice-from-your-tas" class="anchor" href="#friendly-advice-from-your-tas" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Friendly Advice from your TAs</h3>
 
 <ul>
 <li><p>As always, start early.  There is a lot to implement in this assignment, and no official checkpoint, so don't fall behind!</p></li>
 <li><p>Be careful with memory allocation, as too many or too frequent heap allocations will severely degrade performance.</p></li>
+<li><p>Handle all corner cases properly. Otherwise, your task 4 - 6 will probably suffer from segmentation fault a lot.</p></li>
 <li><p>Make sure you have a submission directory that you can write to as soon as possible. Notify course staff if this is not the case.</p></li>
 <li><p>While C has many pitfalls, C++ introduces even more wonderful ways to shoot yourself in the foot. It is generally wise to stay away from as many features as possible, and make sure you fully understand the features you do use.</p></li>
 </ul>
 
 <h3>
-<a id="resources-and-notes" class="anchor" href="#resources-and-notes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Resources and Notes</h3>
+<a id="resources-and-notes" class="anchor" href="#resources-and-notes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Resources and Notes</h3>
 
 <ul>
 <li><p><a href="http://www.flipcode.com/archives/The_Half-Edge_Data_Structure.shtml">The Half-Edge Data Structure</a> - another tutorial on the halfedge data structure.</p></li>
